@@ -25,6 +25,7 @@
                     <a href="{{ route('client.movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
                 @endif
             @else
+                {{-- Chưa đăng nhập → trỏ về login --}}
                 <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
             @endauth
         </div>
@@ -41,6 +42,7 @@
                     <a href="{{ route('client.showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
                 @endif
             @else
+                {{-- Chưa đăng nhập → trỏ về login --}}
                 <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
             @endauth
         </div>
@@ -50,11 +52,13 @@
             <h3 class="text-xl font-semibold mb-3 text-yellow-300">⭐ Ưu Đãi Thành Viên</h3>
             <p class="text-gray-300">Nhận ưu đãi và điểm thưởng khi đăng ký tài khoản khách hàng thân thiết.</p>
 
-            @guest
-                <a href="{{ route('register') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Tham gia ngay</a>
-            @else
+            @auth
+                {{-- Nếu đã đăng nhập --}}
                 <span class="inline-block mt-4 px-4 py-2 bg-gray-500 text-black font-semibold rounded-lg">Bạn đã là thành viên</span>
-            @endguest
+            @else
+                {{-- Nếu chưa đăng nhập thì “Tham gia ngay” vẫn là đăng ký --}}
+                <a href="{{ route('register') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Tham gia ngay</a>
+            @endauth
         </div>
 
     </div>

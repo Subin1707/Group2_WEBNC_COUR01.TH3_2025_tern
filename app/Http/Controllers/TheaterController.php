@@ -11,8 +11,8 @@ class TheaterController extends Controller
     // 📋 Hiển thị danh sách rạp (Admin)
     public function index()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $theaters = Theater::latest()->paginate(10);
@@ -22,8 +22,8 @@ class TheaterController extends Controller
     // ➕ Form thêm rạp mới (Admin)
     public function create()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         return view('admin.theaters.create');
@@ -32,8 +32,8 @@ class TheaterController extends Controller
     // 💾 Lưu rạp mới vào CSDL (Admin)
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $request->validate([
@@ -52,8 +52,8 @@ class TheaterController extends Controller
     // 👁️ Xem chi tiết rạp (Admin)
     public function show(Theater $theater)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem chi tiết rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         return view('admin.theaters.show', compact('theater'));
@@ -62,8 +62,8 @@ class TheaterController extends Controller
     // ✏️ Form chỉnh sửa rạp (Admin)
     public function edit(Theater $theater)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền chỉnh sửa rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         return view('admin.theaters.edit', compact('theater'));
@@ -72,8 +72,8 @@ class TheaterController extends Controller
     // 🔄 Cập nhật rạp (Admin)
     public function update(Request $request, Theater $theater)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền cập nhật rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $request->validate([
@@ -92,8 +92,8 @@ class TheaterController extends Controller
     // 🗑️ Xóa rạp (Admin)
     public function destroy(Theater $theater)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xóa rạp.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $theater->delete();

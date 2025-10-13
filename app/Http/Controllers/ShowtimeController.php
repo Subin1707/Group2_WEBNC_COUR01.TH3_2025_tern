@@ -13,31 +13,32 @@ class ShowtimeController extends Controller
     // 📋 Hiển thị danh sách suất chiếu (Admin)
     public function index()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
+        // Chỉ admin mới xem được danh sách quản trị
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $showtimes = Showtime::with(['movie', 'room'])->latest()->paginate(10);
-        return view('admin.showtimes.index', compact('showtimes'));
+        return view('showtimes.index', compact('showtimes'));
     }
 
     // ➕ Form tạo mới (Admin)
     public function create()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $movies = Movie::all();
         $rooms = Room::all();
-        return view('admin.showtimes.create', compact('movies', 'rooms'));
+        return view('showtimes.create', compact('movies', 'rooms'));
     }
 
     // 💾 Lưu suất chiếu mới (Admin)
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $request->validate([
@@ -55,30 +56,30 @@ class ShowtimeController extends Controller
     // 👁️ Hiển thị chi tiết (Admin)
     public function show(Showtime $showtime)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem chi tiết suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
-        return view('admin.showtimes.show', compact('showtime'));
+        return view('showtimes.show', compact('showtime'));
     }
 
     // ✏️ Form sửa (Admin)
     public function edit(Showtime $showtime)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền chỉnh sửa suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $movies = Movie::all();
         $rooms = Room::all();
-        return view('admin.showtimes.edit', compact('showtime', 'movies', 'rooms'));
+        return view('showtimes.edit', compact('showtime', 'movies', 'rooms'));
     }
 
     // 🔄 Cập nhật (Admin)
     public function update(Request $request, Showtime $showtime)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền cập nhật suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $request->validate([
@@ -96,8 +97,8 @@ class ShowtimeController extends Controller
     // 🗑️ Xóa (Admin)
     public function destroy(Showtime $showtime)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xóa suất chiếu.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập bằng tài khoản quản trị.');
         }
 
         $showtime->delete();

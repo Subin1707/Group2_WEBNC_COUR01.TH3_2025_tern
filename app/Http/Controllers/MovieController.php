@@ -9,50 +9,52 @@ use Illuminate\Support\Facades\Auth;
 class MovieController extends Controller
 {
     /**
-     * 📋 Hiển thị danh sách phim (Admin)
+     * 📋 Hiển thị danh sách phim
      */
     public function index()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
+        // Nếu chưa đăng nhập → chuyển về login
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
         }
 
+        // Lấy danh sách phim cho cả admin & user
         $movies = Movie::latest()->paginate(10);
-        return view('admin.movies.index', compact('movies'));
+
+        return view('movies.index', compact('movies'));
     }
 
     /**
-     * ➕ Form thêm phim mới
+     * ➕ Form thêm phim mới (chỉ admin)
      */
     public function create()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm phim.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('movies.index')->with('error', 'Bạn không có quyền truy cập.');
         }
 
-        return view('admin.movies.create');
+        return view('movies.create');
     }
 
     /**
-     * 💾 Lưu phim mới vào CSDL
+     * 💾 Lưu phim mới (chỉ admin)
      */
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm phim.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('movies.index')->with('error', 'Bạn không có quyền thêm phim.');
         }
 
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'poster'      => 'nullable|image|max:2048', // poster optional
+            'poster'      => 'nullable|image|max:2048',
             'status'      => 'required|in:active,inactive',
         ]);
 
-        $posterPath = null;
-        if ($request->hasFile('poster')) {
-            $posterPath = $request->file('poster')->store('movies', 'public');
-        }
+        $posterPath = $request->hasFile('poster')
+            ? $request->file('poster')->store('movies', 'public')
+            : null;
 
         Movie::create([
             'title'       => $request->title,
@@ -65,36 +67,32 @@ class MovieController extends Controller
     }
 
     /**
-     * 👁️ Xem chi tiết phim
+     * 👁️ Xem chi tiết phim (ai cũng xem được)
      */
     public function show(Movie $movie)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem chi tiết phim.');
-        }
-
-        return view('admin.movies.show', compact('movie'));
+        return view('movies.show', compact('movie'));
     }
 
     /**
-     * ✏️ Form chỉnh sửa phim
+     * ✏️ Form chỉnh sửa phim (chỉ admin)
      */
     public function edit(Movie $movie)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền chỉnh sửa phim.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('movies.index')->with('error', 'Bạn không có quyền chỉnh sửa.');
         }
 
-        return view('admin.movies.edit', compact('movie'));
+        return view('movies.edit', compact('movie'));
     }
 
     /**
-     * 🔄 Cập nhật thông tin phim
+     * 🔄 Cập nhật phim (chỉ admin)
      */
     public function update(Request $request, Movie $movie)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền cập nhật phim.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('movies.index')->with('error', 'Bạn không có quyền cập nhật.');
         }
 
         $request->validate([
@@ -105,28 +103,29 @@ class MovieController extends Controller
         ]);
 
         if ($request->hasFile('poster')) {
-            $posterPath = $request->file('poster')->store('movies', 'public');
-            $movie->poster = $posterPath;
+            $movie->poster = $request->file('poster')->store('movies', 'public');
         }
 
-        $movie->title       = $request->title;
-        $movie->description = $request->description;
-        $movie->status      = $request->status;
-        $movie->save();
+        $movie->update([
+            'title'       => $request->title,
+            'description' => $request->description,
+            'status'      => $request->status,
+        ]);
 
         return redirect()->route('movies.index')->with('success', '✅ Cập nhật phim thành công!');
     }
 
     /**
-     * 🗑️ Xóa phim
+     * 🗑️ Xóa phim (chỉ admin)
      */
     public function destroy(Movie $movie)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xóa phim.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('movies.index')->with('error', 'Bạn không có quyền xóa phim.');
         }
 
         $movie->delete();
+
         return redirect()->route('movies.index')->with('success', '🗑️ Đã xóa phim thành công!');
     }
 }

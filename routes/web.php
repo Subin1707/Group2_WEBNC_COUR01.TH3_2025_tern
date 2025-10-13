@@ -5,20 +5,11 @@ use Illuminate\Support\Facades\Route;
 // Controllers
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
-
-// Admin Controllers
-use App\Http\Controllers\MovieController as AdminMovieController;
-use App\Http\Controllers\TheaterController as AdminTheaterController;
-use App\Http\Controllers\RoomController as AdminRoomController;
-use App\Http\Controllers\ShowtimeController as AdminShowtimeController;
-use App\Http\Controllers\BookingController as AdminBookingController;
-
-// Client Controllers
-use App\Http\Controllers\MovieController as ClientMovieController;
-use App\Http\Controllers\TheaterController as ClientTheaterController;
-use App\Http\Controllers\RoomController as ClientRoomController;
-use App\Http\Controllers\ShowtimeController as ClientShowtimeController;
-use App\Http\Controllers\BookingController as ClientBookingController;
+use App\Http\Controllers\MovieController;
+use App\Http\Controllers\TheaterController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ShowtimeController;
+use App\Http\Controllers\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +20,7 @@ use App\Http\Controllers\BookingController as ClientBookingController;
 // 🏠 Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// 👤 Hồ sơ người dùng (chỉ khi đã login)
+// 👤 Hồ sơ người dùng (chỉ khi đã đăng nhập)
 Route::middleware('auth')->group(function () {
 
     // Dashboard người dùng
@@ -37,51 +28,45 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->middleware(['verified'])->name('dashboard');
 
-    // Trang hồ sơ cá nhân
+    // Hồ sơ cá nhân
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// 🎬 Quản trị hệ thống (Admin)
-Route::prefix('admin')
-    ->middleware(['auth', 'admin'])
-    ->name('admin.')
-    ->group(function () {
 
-        // Dashboard admin
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+// 🎬 ADMIN: Quản lý hệ thống (chỉ admin được phép)
+Route::middleware(['auth', 'admin'])->group(function () {
 
-        // Các module quản lý phim, rạp, phòng chiếu, suất chiếu, đặt vé
-        Route::resource('movies', AdminMovieController::class);
-        Route::resource('theaters', AdminTheaterController::class);
-        Route::resource('rooms', AdminRoomController::class);
-        Route::resource('showtimes', AdminShowtimeController::class);
-        Route::resource('bookings', AdminBookingController::class);
-    });
+    // Trang quản trị
+    Route::get('/admin', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 
-// 🌐 Giao diện người dùng (Client)
-Route::prefix('client')
-    ->name('client.')
-    ->group(function () {
+    // Các module quản lý
+    Route::resource('admin/movies', MovieController::class)->names('admin.movies');
+    Route::resource('admin/theaters', TheaterController::class)->names('admin.theaters');
+    Route::resource('admin/rooms', RoomController::class)->names('admin.rooms');
+    Route::resource('admin/showtimes', ShowtimeController::class)->names('admin.showtimes');
+    Route::resource('admin/bookings', BookingController::class)->names('admin.bookings');
+});
 
-        // Phim
-        Route::get('/movies', [ClientMovieController::class, 'index'])->name('movies.index');
-        Route::get('/movies/{movie}', [ClientMovieController::class, 'show'])->name('movies.show');
 
-        // Rạp & Phòng chiếu
-        Route::get('/theaters', [ClientTheaterController::class, 'index'])->name('theaters.index');
-        Route::get('/rooms', [ClientRoomController::class, 'index'])->name('rooms.index');
+// 🌐 CLIENT: Người dùng xem phim, đặt vé
+// Alias các route cơ bản để tránh lỗi “Route not defined”
+Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
+Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.show');
 
-        // Suất chiếu & Đặt vé
-        Route::get('/showtimes', [ClientShowtimeController::class, 'index'])->name('showtimes.index');
-        Route::post('/bookings', [ClientBookingController::class, 'store'])->name('bookings.store');
-    });
+Route::get('/theaters', [TheaterController::class, 'index'])->name('theaters.index');
+Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+Route::get('/showtimes', [ShowtimeController::class, 'index'])->name('showtimes.index');
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
 
 // 🧭 Trang giới thiệu
 Route::view('/about', 'about')->name('aboutme');
+
 
 // Auth routes (Laravel Breeze / Fortify)
 require __DIR__.'/auth.php';
