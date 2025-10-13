@@ -1,3 +1,6 @@
-<footer style="background: #f5f5f5; padding: 10px; margin-top: 20px;">
-    <p>&copy; Nguyễn Mạnh Quyền-23010198</p>
+<footer style="background:#1e293b; color:#f1f5f9; text-align:center; padding:15px; margin-top:40px;">
+    <p style="margin:0;">
+        © {{ date('Y') }} Rạp Chiếu Phim Q&H | Developed by 
+        <strong>Nguyễn Mạnh Quyền</strong> & <strong>Phạm Văn Hoàng</strong> 🎥
+    </p>
 </footer>
