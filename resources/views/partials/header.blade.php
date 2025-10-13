@@ -5,14 +5,24 @@
         </h1>
         <nav style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
             <a href="{{ route('home') }}" style="color:#fff; text-decoration:none;">Trang chủ</a>
-            <a href="{{ route('movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
-            <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
-            <a href="{{ route('theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
-            <a href="{{ route('bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
-
+            @if(Route::has('client.movies.index'))
+                <a href="{{ route('client.movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
+            @endif
+            @if(Route::has('client.showtimes.index'))
+                <a href="{{ route('client.showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
+            @endif
+            @if(Route::has('client.theaters.index'))
+                <a href="{{ route('client.theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
+            @endif
+            @if(Route::has('client.bookings.index'))
+                <a href="{{ route('client.bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
+            @endif
             <a href="{{ route('aboutme') }}" style="color:#fff; text-decoration:none;">Giới thiệu</a>
 
             @auth
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" style="color:#facc15; text-decoration:none;">Dashboard Admin</a>
+                @endif
                 <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                     @csrf
                     <button type="submit" style="background:none; border:none; color:#facc15; cursor:pointer;">
