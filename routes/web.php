@@ -3,16 +3,22 @@
 use Illuminate\Support\Facades\Route;
 
 // Controllers
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\MovieController;
-use App\Http\Controllers\TheaterController;
-use App\Http\Controllers\RoomController;
-use App\Http\Controllers\ShowtimeController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\NewsController as ClientNewsController;
-use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 
-require __DIR__.'/news.php';
+// Admin Controllers
+use App\Http\Controllers\MovieController as AdminMovieController;
+use App\Http\Controllers\TheaterController as AdminTheaterController;
+use App\Http\Controllers\RoomController as AdminRoomController;
+use App\Http\Controllers\ShowtimeController as AdminShowtimeController;
+use App\Http\Controllers\BookingController as AdminBookingController;
+
+// Client Controllers
+use App\Http\Controllers\MovieController as ClientMovieController;
+use App\Http\Controllers\TheaterController as ClientTheaterController;
+use App\Http\Controllers\RoomController as ClientRoomController;
+use App\Http\Controllers\ShowtimeController as ClientShowtimeController;
+use App\Http\Controllers\BookingController as ClientBookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,42 +27,57 @@ require __DIR__.'/news.php';
 */
 
 // 🏠 Trang chủ
-Route::get('/', [MovieController::class, 'home'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// 👤 Hồ sơ người dùng
+// 👤 Hồ sơ người dùng (chỉ khi đã login)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn() => view('dashboard'))
-        ->middleware(['verified'])
-        ->name('dashboard');
 
+    // Dashboard người dùng
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['verified'])->name('dashboard');
+
+    // Trang hồ sơ cá nhân
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// 🎬 Quản trị hệ thống (admin)
+// 🎬 Quản trị hệ thống (Admin)
 Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
-        // Trang dashboard admin
+
+        // Dashboard admin
         Route::get('/', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
-        // Các module quản lý
-        Route::resource('movies', MovieController::class);
-        Route::resource('theaters', TheaterController::class);
-        Route::resource('rooms', RoomController::class);
-        Route::resource('showtimes', ShowtimeController::class);
-        Route::resource('bookings', BookingController::class);
+        // Các module quản lý phim, rạp, phòng chiếu, suất chiếu, đặt vé
+        Route::resource('movies', AdminMovieController::class);
+        Route::resource('theaters', AdminTheaterController::class);
+        Route::resource('rooms', AdminRoomController::class);
+        Route::resource('showtimes', AdminShowtimeController::class);
+        Route::resource('bookings', AdminBookingController::class);
     });
 
-// 🌐 Giao diện người dùng (client)
+// 🌐 Giao diện người dùng (Client)
 Route::prefix('client')
     ->name('client.')
     ->group(function () {
-        Route::resource('news', ClientNewsController::class);
+
+        // Phim
+        Route::get('/movies', [ClientMovieController::class, 'index'])->name('movies.index');
+        Route::get('/movies/{movie}', [ClientMovieController::class, 'show'])->name('movies.show');
+
+        // Rạp & Phòng chiếu
+        Route::get('/theaters', [ClientTheaterController::class, 'index'])->name('theaters.index');
+        Route::get('/rooms', [ClientRoomController::class, 'index'])->name('rooms.index');
+
+        // Suất chiếu & Đặt vé
+        Route::get('/showtimes', [ClientShowtimeController::class, 'index'])->name('showtimes.index');
+        Route::post('/bookings', [ClientBookingController::class, 'store'])->name('bookings.store');
     });
 
 // 🧭 Trang giới thiệu
