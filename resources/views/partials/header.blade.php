@@ -1,53 +1,92 @@
-<header style="background: #1e293b; padding: 15px; color: #fff;">
-    <div style="max-width:1200px; margin:auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-        <h1 style="font-size:24px; font-weight:bold; color:#facc15; margin-bottom:8px;">
-            🎬 Rạp Chiếu Phim Online
-        </h1>
 
-        <nav style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-            {{-- Trang chủ --}}
-            <a href="{{ route('home') }}" style="color:#fff; text-decoration:none;">Trang chủ</a>
+    <!-- Top Bar -->
+    <section id="top">
+        <div class="container">
+            <div class="row top_1">
+                <div class="col-md-3">
+                    <div class="top_1l pt-1">
+                        <h3 class="mb-0">
+                            <a class="text-white" href="{{ url('/') }}">
+                                <i class="fa fa-video-camera col_red me-1"></i> Q&HCINEMA
+                            </a>
+                        </h3>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="top_1m">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black" placeholder="Tìm phim...">
+                            <button class="btn text-white bg_red rounded-0 border-0" type="button">Tìm</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="top_1r text-end">
+                        <ul class="social-network social-circle mb-0">
+                            <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+                            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                            <li><a href="#"><i class="fa fa-youtube"></i></a></li>
+                            <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="header">
+        <!-- Navbar Auth -->
+        <nav class="navbar navbar-expand-md navbar-light" id="navbar_sticky">
+            <div class="container">
+                <a class="navbar-brand text-white fw-bold" href="{{ url('/') }}"><i class="fa fa-video-camera col_red me-1"></i> Q&HCinema</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto">
 
-            {{-- Nếu là admin --}}
-            @auth
-                @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
-                    <a href="{{ route('rooms.index') }}" style="color:#fff; text-decoration:none;">Phòng</a>
-                    <a href="{{ route('theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
-                    <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
-                    <a href="{{ route('bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
+                        
+                        @auth
+                            
 
-                    {{-- Link quản trị --}}
-                    <a href="{{ route('admin.dashboard') }}" style="color:#facc15; text-decoration:none;">Dashboard Admin</a>
-                @else
-                    {{-- Người dùng bình thường (client) --}}
-                    <a href="{{ route('movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
-                    <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
-                    <a href="{{ route('theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
-                    <a href="{{ route('bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
-                @endif
-            @else
-                {{-- Chưa đăng nhập --}}
-                <a href="{{ route('movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
-                <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
-                <a href="{{ route('theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
-                <a href="{{ route('bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
-            @endauth
+                            @if(Auth::user()->role === 'admin')
+                                <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('rooms.index') }}">Phòng</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}">Rạp</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch Chiếu</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('bookings.index') }}">Đặt Vé</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard Admin</a></li>
+                            @elseif(Auth::guard('customer')->check())
+                                <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}"> Phim</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch Chiếu</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}"> Rạp</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('bookings.history') }}">Lịch sử</a></li>
+                            @endif
 
-            {{-- Giới thiệu --}}
-            <a href="{{ route('aboutme') }}" style="color:#fff; text-decoration:none;">Giới thiệu</a>
+                            <li class="nav-item">
+                                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-link nav-link">🚪 Đăng xuất</button>
+                                </form>
+                            </li>
+                        @else
+                        {{-- Chưa đăng nhập --}}
+                            <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}"> Phim</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch Chiếu</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}"> Rạp</a></li>
+                        @endauth
 
-            {{-- Đăng nhập / Đăng xuất --}}
-            @auth
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" style="background:none; border:none; color:#facc15; cursor:pointer;">
-                        Đăng xuất ({{ Auth::user()->name }})
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" style="color:#facc15; text-decoration:none;">Đăng nhập</a>
-            @endauth
+                        @guest
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('login') }}">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('register') }}">Đăng ký</a>
+                            </li>
+                        @endguest
+
+                    </ul>
+                </div>
+            </div>
         </nav>
-    </div>
-</header>
+    </section>

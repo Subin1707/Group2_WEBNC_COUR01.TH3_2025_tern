@@ -22,14 +22,14 @@
                 @if(auth()->user()->role === 'admin')
                     <a href="{{ route('admin.movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Quản lý phim</a>
                 @else
-                    <a href="{{ route('client.movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
+                    <a href="{{ route('movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
                 @endif
             @else
                 {{-- Chưa đăng nhập → trỏ về login --}}
                 <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
             @endauth
         </div>
-
+        
         {{-- Đặt vé nhanh --}}
         <div class="p-6 bg-white/10 backdrop-blur rounded-2xl shadow hover:shadow-lg transition">
             <h3 class="text-xl font-semibold mb-3 text-yellow-300">🎟️ Đặt Vé Nhanh</h3>
@@ -39,7 +39,7 @@
                 @if(auth()->user()->role === 'admin')
                     <a href="{{ route('admin.bookings.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Quản lý đặt vé</a>
                 @else
-                    <a href="{{ route('client.showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
+                    <a href="{{ route('showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
                 @endif
             @else
                 {{-- Chưa đăng nhập → trỏ về login --}}
