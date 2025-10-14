@@ -1,5 +1,5 @@
-<form action="{{ isset($movie) 
-        ? route('admin.movies.update', $movie) 
+<form action="{{ isset($movie) && $movie->exists
+        ? route('admin.movies.update', $movie->id)
         : route('admin.movies.store') }}" 
       method="POST" enctype="multipart/form-data">
     @csrf

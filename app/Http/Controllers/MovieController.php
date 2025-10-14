@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MovieController extends Controller
 {
@@ -30,7 +31,10 @@ class MovieController extends Controller
             return redirect()->route('movies.index')->with('error', 'Bạn không có quyền truy cập.');
         }
 
-        return view('movies.create');
+        // ✅ Thêm dòng này để tránh lỗi "biến chưa xác định $movie" trong _form.blade.php
+        $movie = new Movie();
+
+        return view('movies.create', compact('movie'));
     }
 
     /**
@@ -105,8 +109,14 @@ class MovieController extends Controller
             'status'      => 'required|in:active,inactive',
         ]);
 
+        $posterPath = $movie->poster;
+
+        // ✅ Xóa ảnh cũ nếu có ảnh mới
         if ($request->hasFile('poster')) {
-            $movie->poster = $request->file('poster')->store('movies', 'public');
+            if ($posterPath && Storage::disk('public')->exists($posterPath)) {
+                Storage::disk('public')->delete($posterPath);
+            }
+            $posterPath = $request->file('poster')->store('movies', 'public');
         }
 
         $movie->update([
@@ -114,7 +124,7 @@ class MovieController extends Controller
             'genre'       => $request->genre,
             'duration'    => $request->duration,
             'description' => $request->description,
-            'poster'      => $movie->poster,
+            'poster'      => $posterPath,
             'status'      => $request->status,
         ]);
 
@@ -130,7 +140,13 @@ class MovieController extends Controller
             return redirect()->route('movies.index')->with('error', 'Bạn không có quyền xóa phim.');
         }
 
+        // ✅ Xóa poster cũ nếu có
+        if ($movie->poster && Storage::disk('public')->exists($movie->poster)) {
+            Storage::disk('public')->delete($movie->poster);
+        }
+
         $movie->delete();
+
         return redirect()->route('movies.index')->with('success', '🗑️ Đã xóa phim thành công!');
     }
 }
