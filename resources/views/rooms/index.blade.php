@@ -4,12 +4,12 @@
 <div class="container">
     <h1 class="mb-4">💺 Danh sách phòng chiếu</h1>
 
-    {{-- Hiển thị thông báo thành công --}}
+    {{-- ✅ Thông báo thành công --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- Nút thêm phòng chỉ dành cho admin --}}
+    {{-- ✅ Nút thêm phòng (chỉ admin) --}}
     @auth
         @if(Auth::user()->role === 'admin')
             <a href="{{ route('admin.rooms.create') }}" class="btn btn-primary mb-3">
@@ -18,7 +18,7 @@
         @endif
     @endauth
 
-    {{-- Bảng danh sách phòng --}}
+    {{-- ✅ Bảng danh sách phòng --}}
     <table class="table table-striped table-bordered align-middle shadow-sm">
         <thead class="table-dark">
             <tr>
@@ -35,12 +35,12 @@
                     <td>{{ $room->theater->name ?? 'Không có' }}</td>
                     <td>{{ $room->capacity ?? $room->seats_count ?? 'N/A' }}</td>
                     <td>
-                        {{-- Nút xem (mọi người đều thấy) --}}
-                        <a href="{{ route('rooms.show', $room) }}" class="btn btn-info btn-sm">
+                        {{-- 👁 Nút xem (mọi người đều thấy) --}}
+                        <a href="{{ route('admin.rooms.show', $room) }}" class="btn btn-info btn-sm">
                             👁 Xem
                         </a>
 
-                        {{-- Chỉ admin mới thấy các nút sau --}}
+                        {{-- ✏️ Sửa & 🗑 Xóa (chỉ admin) --}}
                         @auth
                             @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-warning btn-sm">
@@ -68,7 +68,7 @@
         </tbody>
     </table>
 
-    {{-- Phân trang --}}
+    {{-- ✅ Phân trang --}}
     <div class="mt-3">
         {{ $rooms->links() }}
     </div>

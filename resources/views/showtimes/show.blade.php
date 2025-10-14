@@ -2,18 +2,21 @@
 
 @section('content')
 <div class="container">
-    <h1>🎬 Chi tiết suất chiếu</h1>
+    <h1 class="mb-4">🎬 Chi tiết suất chiếu: {{ $showtime->movie->title ?? 'N/A' }}</h1>
 
-    <div class="card">
-        <div class="card-body">
-            <p><strong>ID:</strong> {{ $showtime->id }}</p>
-            <p><strong>Phim:</strong> {{ $showtime->movie->title ?? 'N/A' }}</p>
-            <p><strong>Phòng chiếu:</strong> {{ $showtime->room->name ?? 'N/A' }}</p>
-            <p><strong>Thời gian chiếu:</strong> {{ date('d/m/Y H:i', strtotime($showtime->start_time)) }}</p>
-            <p><strong>Giá vé:</strong> {{ number_format($showtime->price, 0, ',', '.') }} VNĐ</p>
-        </div>
-    </div>
+    {{-- Thông tin suất chiếu --}}
+    <ul class="list-group mb-3">
+        <li class="list-group-item"><strong>ID:</strong> {{ $showtime->id }}</li>
+        <li class="list-group-item"><strong>Phòng chiếu:</strong> {{ $showtime->room->name ?? 'N/A' }}</li>
+        <li class="list-group-item"><strong>Thời gian chiếu:</strong> {{ date('d/m/Y H:i', strtotime($showtime->start_time)) }}</li>
+        <li class="list-group-item"><strong>Giá vé:</strong> {{ number_format($showtime->price, 0, ',', '.') }} VNĐ</li>
+    </ul>
 
-    <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary mt-3">⬅️ Quay lại</a>
+    {{-- Nút quay lại khác nhau giữa admin và client --}}
+    @if(Auth::check() && Auth::user()->is_admin)
+        <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+    @else
+        <a href="{{ route('showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+    @endif
 </div>
 @endsection

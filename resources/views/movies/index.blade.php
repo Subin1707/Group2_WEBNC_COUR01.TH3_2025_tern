@@ -25,7 +25,7 @@
                     <td>{{ $movie->genre ?? '—' }}</td>
                     <td>{{ $movie->duration ?? '—' }} phút</td>
                     <td>
-                        {{-- Ai cũng có thể xem chi tiết (client route) --}}
+                        {{-- Ai cũng có thể xem chi tiết --}}
                         <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-info btn-sm">👁️ Xem</a>
 
                         {{-- Chỉ admin mới được sửa hoặc xóa --}}

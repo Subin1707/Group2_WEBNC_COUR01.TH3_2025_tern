@@ -16,18 +16,30 @@ class BookingController extends Controller
             abort(403, 'Bạn không có quyền xem danh sách đặt vé.');
         }
 
-        $bookings = Booking::with(['showtime.movie', 'user'])->latest()->paginate(10);
+        $bookings = Booking::with(['showtime.movie', 'user'])
+            ->latest()
+            ->paginate(10);
+
         return view('admin.bookings.index', compact('bookings'));
     }
 
-    // ➕ Form đặt vé (Khách hàng)
-    public function create()
+    // 🕒 Trang chọn lịch chiếu trước khi đặt vé (Client)
+    public function chooseShowtime()
     {
-        $showtimes = Showtime::with('movie')->get();
-        return view('bookings.create', compact('showtimes')); // client booking form
+        $showtimes = Showtime::with(['movie', 'theater', 'room'])
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        return view('bookings.choose', compact('showtimes'));
     }
 
-    // 💾 Lưu vé mới (Khách hàng)
+    // ➕ Form đặt vé cho 1 suất chiếu cụ thể (Client)
+    public function create(Showtime $showtime)
+    {
+        return view('bookings.create', compact('showtime'));
+    }
+
+    // 💾 Lưu vé mới (Client)
     public function store(Request $request)
     {
         $request->validate([
@@ -37,14 +49,26 @@ class BookingController extends Controller
         ]);
 
         Booking::create([
-            'user_id'     => Auth::id(), // user đang login
+            'user_id'     => Auth::id(),
             'showtime_id' => $request->showtime_id,
             'seats'       => $request->seats,
             'total_price' => $request->total_price,
-            'status'      => 'pending', // mặc định pending
+            'status'      => 'pending',
         ]);
 
-        return redirect()->route('client.bookings.index')->with('success', '🎟️ Đặt vé thành công!');
+        return redirect()->route('bookings.history')
+            ->with('success', '🎟️ Đặt vé thành công!');
+    }
+
+    // 🧾 Lịch sử đặt vé (Client)
+    public function history()
+    {
+        $bookings = Booking::where('user_id', Auth::id())
+            ->with('showtime.movie')
+            ->latest()
+            ->get();
+
+        return view('bookings.history', compact('bookings'));
     }
 
     // 👁️ Chi tiết (Admin)
@@ -83,7 +107,8 @@ class BookingController extends Controller
         ]);
 
         $booking->update($request->all());
-        return redirect()->route('bookings.index')->with('success', '✅ Cập nhật đặt vé thành công!');
+        return redirect()->route('admin.bookings.index')
+            ->with('success', '✅ Cập nhật đặt vé thành công!');
     }
 
     // 🗑️ Xóa (Admin)
@@ -94,6 +119,7 @@ class BookingController extends Controller
         }
 
         $booking->delete();
-        return redirect()->route('bookings.index')->with('success', '🗑️ Xóa đặt vé thành công!');
+        return redirect()->route('admin.bookings.index')
+            ->with('success', '🗑️ Xóa đặt vé thành công!');
     }
 }

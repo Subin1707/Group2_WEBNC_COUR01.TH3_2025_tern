@@ -12,7 +12,6 @@
     </p>
 
     <div class="grid md:grid-cols-3 gap-6 mt-8 px-4">
-
         {{-- Phim đang chiếu --}}
         <div class="p-6 bg-white/10 backdrop-blur rounded-2xl shadow hover:shadow-lg transition">
             <h3 class="text-xl font-semibold mb-3 text-yellow-300">🍿 Phim Đang Chiếu</h3>
@@ -25,7 +24,6 @@
                     <a href="{{ route('movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
                 @endif
             @else
-                {{-- Chưa đăng nhập → trỏ về login --}}
                 <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
             @endauth
         </div>
@@ -42,25 +40,21 @@
                     <a href="{{ route('showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
                 @endif
             @else
-                {{-- Chưa đăng nhập → trỏ về login --}}
                 <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
             @endauth
         </div>
 
-        {{-- Ưu đãi thành viên / đăng ký --}}
+        {{-- Ưu đãi --}}
         <div class="p-6 bg-white/10 backdrop-blur rounded-2xl shadow hover:shadow-lg transition">
             <h3 class="text-xl font-semibold mb-3 text-yellow-300">⭐ Ưu Đãi Thành Viên</h3>
             <p class="text-gray-300">Nhận ưu đãi và điểm thưởng khi đăng ký tài khoản khách hàng thân thiết.</p>
 
             @auth
-                {{-- Nếu đã đăng nhập --}}
                 <span class="inline-block mt-4 px-4 py-2 bg-gray-500 text-black font-semibold rounded-lg">Bạn đã là thành viên</span>
             @else
-                {{-- Nếu chưa đăng nhập thì “Tham gia ngay” vẫn là đăng ký --}}
                 <a href="{{ route('register') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Tham gia ngay</a>
             @endauth
         </div>
-
     </div>
 </div>
 @endsection

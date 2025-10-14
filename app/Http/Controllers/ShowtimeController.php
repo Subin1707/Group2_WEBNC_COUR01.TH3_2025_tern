@@ -12,20 +12,12 @@ class ShowtimeController extends Controller
 {
     /**
      * 📋 Hiển thị danh sách suất chiếu
-     * - Admin: thấy tất cả
-     * - Người dùng: chỉ xem danh sách (không lỗi redirect)
      */
     public function index()
     {
-        $query = Showtime::with(['movie', 'room'])->latest();
-
-        // Nếu là admin → hiển thị tất cả
-        if (Auth::check() && Auth::user()->role === 'admin') {
-            $showtimes = $query->paginate(10);
-        } else {
-            // Người dùng thường chỉ xem danh sách chung
-            $showtimes = $query->paginate(10);
-        }
+        $showtimes = Showtime::with(['movie', 'room'])
+            ->orderByDesc('start_time')
+            ->paginate(10);
 
         return view('showtimes.index', compact('showtimes'));
     }
@@ -44,7 +36,7 @@ class ShowtimeController extends Controller
     }
 
     /**
-     * 💾 Lưu suất chiếu mới (chỉ admin)
+     * 💾 Lưu suất chiếu mới
      */
     public function store(Request $request)
     {
@@ -53,7 +45,7 @@ class ShowtimeController extends Controller
         $request->validate([
             'movie_id'   => 'required|exists:movies,id',
             'room_id'    => 'required|exists:rooms,id',
-            'start_time' => 'required|date',
+            'start_time' => 'required|date|after:now',
             'price'      => 'required|numeric|min:0',
         ]);
 
@@ -68,7 +60,8 @@ class ShowtimeController extends Controller
      */
     public function show(Showtime $showtime)
     {
-        return view('showtimes.show', compact('showtime'));
+        $canBook = Auth::check() && Auth::user()->role === 'user';
+        return view('showtimes.show', compact('showtime', 'canBook'));
     }
 
     /**
@@ -85,7 +78,7 @@ class ShowtimeController extends Controller
     }
 
     /**
-     * 🔄 Cập nhật suất chiếu (chỉ admin)
+     * 🔄 Cập nhật suất chiếu
      */
     public function update(Request $request, Showtime $showtime)
     {
@@ -94,7 +87,7 @@ class ShowtimeController extends Controller
         $request->validate([
             'movie_id'   => 'required|exists:movies,id',
             'room_id'    => 'required|exists:rooms,id',
-            'start_time' => 'required|date',
+            'start_time' => 'required|date|after:now',
             'price'      => 'required|numeric|min:0',
         ]);
 
@@ -105,7 +98,7 @@ class ShowtimeController extends Controller
     }
 
     /**
-     * 🗑️ Xóa suất chiếu (chỉ admin)
+     * 🗑️ Xóa suất chiếu
      */
     public function destroy(Showtime $showtime)
     {
@@ -123,7 +116,7 @@ class ShowtimeController extends Controller
     private function authorizeAdmin()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền truy cập chức năng này.');
+            abort(403, '⛔ Bạn không có quyền truy cập chức năng này.');
         }
     }
 }
