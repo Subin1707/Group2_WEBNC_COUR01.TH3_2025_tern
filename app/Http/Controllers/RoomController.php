@@ -14,36 +14,29 @@ class RoomController extends Controller
      */
     public function index()
     {
-        // Chỉ admin mới được xem danh sách phòng
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
-        }
-
         $rooms = Room::with('theater')->latest()->paginate(10);
-        return view('admin.rooms.index', compact('rooms'));
+        $user = Auth::user(); // lấy thông tin user để phân quyền trong view
+
+        return view('rooms.index', compact('rooms', 'user'));
     }
 
     /**
-     * ➕ Form thêm phòng chiếu mới
+     * ➕ Form thêm phòng chiếu mới (Admin only)
      */
     public function create()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm phòng chiếu.');
-        }
+        $this->authorizeAdmin();
 
         $theaters = Theater::all();
-        return view('admin.rooms.create', compact('theaters'));
+        return view('rooms.create', compact('theaters'));
     }
 
     /**
-     * 💾 Lưu phòng chiếu mới vào CSDL
+     * 💾 Lưu phòng chiếu mới (Admin only)
      */
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền thêm phòng chiếu.');
-        }
+        $this->authorizeAdmin();
 
         $request->validate([
             'theater_id' => 'required|exists:theaters,id',
@@ -51,11 +44,7 @@ class RoomController extends Controller
             'capacity'   => 'required|integer|min:1',
         ]);
 
-        Room::create([
-            'theater_id' => $request->theater_id,
-            'name'       => $request->name,
-            'capacity'   => $request->capacity,
-        ]);
+        Room::create($request->all());
 
         return redirect()->route('rooms.index')->with('success', '🎬 Thêm phòng chiếu thành công!');
     }
@@ -65,34 +54,25 @@ class RoomController extends Controller
      */
     public function show(Room $room)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem chi tiết phòng chiếu.');
-        }
-
-        return view('admin.rooms.show', compact('room'));
+        return view('rooms.show', compact('room'));
     }
 
     /**
-     * ✏️ Form chỉnh sửa phòng chiếu
+     * ✏️ Form chỉnh sửa phòng chiếu (Admin only)
      */
     public function edit(Room $room)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền chỉnh sửa phòng chiếu.');
-        }
-
+        $this->authorizeAdmin();
         $theaters = Theater::all();
-        return view('admin.rooms.edit', compact('room', 'theaters'));
+        return view('rooms.edit', compact('room', 'theaters'));
     }
 
     /**
-     * 🔄 Cập nhật thông tin phòng chiếu
+     * 🔄 Cập nhật phòng chiếu (Admin only)
      */
     public function update(Request $request, Room $room)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền cập nhật phòng chiếu.');
-        }
+        $this->authorizeAdmin();
 
         $request->validate([
             'theater_id' => 'required|exists:theaters,id',
@@ -100,25 +80,29 @@ class RoomController extends Controller
             'capacity'   => 'required|integer|min:1',
         ]);
 
-        $room->update([
-            'theater_id' => $request->theater_id,
-            'name'       => $request->name,
-            'capacity'   => $request->capacity,
-        ]);
+        $room->update($request->all());
 
-        return redirect()->route('rooms.index')->with('success', '✅ Cập nhật phòng chiếu thành công!');
+        return redirect()->route('rooms.index')->with('success', '✅ Cập nhật thành công!');
     }
 
     /**
-     * 🗑️ Xóa phòng chiếu
+     * 🗑️ Xóa phòng chiếu (Admin only)
      */
     public function destroy(Room $room)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xóa phòng chiếu.');
-        }
-
+        $this->authorizeAdmin();
         $room->delete();
-        return redirect()->route('rooms.index')->with('success', '🗑️ Đã xóa phòng chiếu thành công!');
+
+        return redirect()->route('rooms.index')->with('success', '🗑️ Xóa thành công!');
+    }
+
+    /**
+     * 🛡️ Kiểm tra quyền admin
+     */
+    private function authorizeAdmin()
+    {
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            abort(403, '🚫 Bạn không có quyền thực hiện thao tác này.');
+        }
     }
 }

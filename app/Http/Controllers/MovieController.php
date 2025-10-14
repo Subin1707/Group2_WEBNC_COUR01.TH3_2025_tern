@@ -13,14 +13,11 @@ class MovieController extends Controller
      */
     public function index()
     {
-        // Nếu chưa đăng nhập → chuyển về login
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
         }
 
-        // Lấy danh sách phim cho cả admin & user
         $movies = Movie::latest()->paginate(10);
-
         return view('movies.index', compact('movies'));
     }
 
@@ -47,8 +44,10 @@ class MovieController extends Controller
 
         $request->validate([
             'title'       => 'required|string|max:255',
+            'genre'       => 'nullable|string|max:255',
+            'duration'    => 'required|integer|min:1',
             'description' => 'nullable|string',
-            'poster'      => 'nullable|image|max:2048',
+            'poster'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'status'      => 'required|in:active,inactive',
         ]);
 
@@ -58,6 +57,8 @@ class MovieController extends Controller
 
         Movie::create([
             'title'       => $request->title,
+            'genre'       => $request->genre,
+            'duration'    => $request->duration,
             'description' => $request->description,
             'poster'      => $posterPath,
             'status'      => $request->status,
@@ -67,7 +68,7 @@ class MovieController extends Controller
     }
 
     /**
-     * 👁️ Xem chi tiết phim (ai cũng xem được)
+     * 👁️ Xem chi tiết phim
      */
     public function show(Movie $movie)
     {
@@ -97,8 +98,10 @@ class MovieController extends Controller
 
         $request->validate([
             'title'       => 'required|string|max:255',
+            'genre'       => 'nullable|string|max:255',
+            'duration'    => 'required|integer|min:1',
             'description' => 'nullable|string',
-            'poster'      => 'nullable|image|max:2048',
+            'poster'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'status'      => 'required|in:active,inactive',
         ]);
 
@@ -108,7 +111,10 @@ class MovieController extends Controller
 
         $movie->update([
             'title'       => $request->title,
+            'genre'       => $request->genre,
+            'duration'    => $request->duration,
             'description' => $request->description,
+            'poster'      => $movie->poster,
             'status'      => $request->status,
         ]);
 
@@ -125,7 +131,6 @@ class MovieController extends Controller
         }
 
         $movie->delete();
-
         return redirect()->route('movies.index')->with('success', '🗑️ Đã xóa phim thành công!');
     }
 }

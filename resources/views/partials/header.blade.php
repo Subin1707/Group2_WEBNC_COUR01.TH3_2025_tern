@@ -12,8 +12,9 @@
             @auth
                 @if(auth()->user()->role === 'admin')
                     <a href="{{ route('movies.index') }}" style="color:#fff; text-decoration:none;">Phim</a>
-                    <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
+                    <a href="{{ route('rooms.index') }}" style="color:#fff; text-decoration:none;">Phòng</a>
                     <a href="{{ route('theaters.index') }}" style="color:#fff; text-decoration:none;">Rạp</a>
+                    <a href="{{ route('showtimes.index') }}" style="color:#fff; text-decoration:none;">Lịch chiếu</a>
                     <a href="{{ route('bookings.index') }}" style="color:#fff; text-decoration:none;">Đặt vé</a>
 
                     {{-- Link quản trị --}}

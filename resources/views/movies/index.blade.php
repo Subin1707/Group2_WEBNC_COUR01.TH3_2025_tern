@@ -25,8 +25,8 @@
                     <td>{{ $movie->genre ?? '—' }}</td>
                     <td>{{ $movie->duration ?? '—' }} phút</td>
                     <td>
-                        {{-- Ai cũng có thể xem chi tiết --}}
-                        <a href="{{ route('client.movies.show', $movie->id) }}" class="btn btn-info btn-sm">👁️ Xem</a>
+                        {{-- Ai cũng có thể xem chi tiết (client route) --}}
+                        <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-info btn-sm">👁️ Xem</a>
 
                         {{-- Chỉ admin mới được sửa hoặc xóa --}}
                         @if(Auth::check() && Auth::user()->role === 'admin')
