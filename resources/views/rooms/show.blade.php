@@ -14,11 +14,11 @@
 
     <div class="d-flex flex-wrap gap-2 mt-4">
         {{-- Nút quay lại --}}
-        <a href="{{ route('rooms.index') }}" class="btn btn-secondary">
+        <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary">
             ⬅️ Quay lại danh sách
         </a>
 
-        {{-- Chỉ admin mới thấy các nút sau --}}
+        {{-- Chỉ admin mới thấy các nút sửa/xóa --}}
         @auth
             @if(Auth::user()->role === 'admin')
                 {{-- Nút sửa --}}

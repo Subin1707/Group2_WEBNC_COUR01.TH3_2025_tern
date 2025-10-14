@@ -1,36 +1,39 @@
-@csrf
-@if(isset($room))
-    @method('PUT')
-@endif
+@php
+    // Nếu không truyền $room thì mặc định null (dùng cho create)
+    $room ??= null;
+@endphp
 
-{{-- Rạp chiếu --}}
 <div class="mb-3">
-    <label for="theater_id" class="form-label">🎬 Rạp chiếu</label>
+    <label for="theater_id" class="form-label">Chọn rạp</label>
     <select name="theater_id" id="theater_id" class="form-select" required>
-        <option value="">-- Chọn rạp chiếu --</option>
+        <option value="">-- Chọn rạp --</option>
         @foreach($theaters as $theater)
-            <option value="{{ $theater->id }}" {{ old('theater_id', $room->theater_id ?? '') == $theater->id ? 'selected' : '' }}>
+            <option value="{{ $theater->id }}"
+                {{ old('theater_id', $room->theater_id ?? '') == $theater->id ? 'selected' : '' }}>
                 {{ $theater->name }}
             </option>
         @endforeach
     </select>
 </div>
 
-{{-- Tên phòng --}}
 <div class="mb-3">
-    <label for="name" class="form-label">🏷️ Tên phòng</label>
-    <input type="text" name="name" id="name" class="form-control"
-           placeholder="Nhập tên phòng..." value="{{ old('name', $room->name ?? '') }}" required>
+    <label for="name" class="form-label">Tên phòng</label>
+    <input type="text" name="name" id="name"
+           class="form-control"
+           value="{{ old('name', $room->name ?? '') }}"
+           required>
 </div>
 
-{{-- Sức chứa --}}
 <div class="mb-3">
-    <label for="capacity" class="form-label">💺 Sức chứa</label>
-    <input type="number" name="capacity" id="capacity" class="form-control"
-           placeholder="Nhập số ghế..." min="1" value="{{ old('capacity', $room->capacity ?? '') }}" required>
+    <label for="capacity" class="form-label">Sức chứa</label>
+    <input type="number" name="capacity" id="capacity" min="1"
+           class="form-control"
+           value="{{ old('capacity', $room->capacity ?? '') }}"
+           required>
 </div>
 
-{{-- Nút lưu --}}
-<button type="submit" class="btn btn-success">
-    💾 {{ isset($room) ? 'Cập nhật' : 'Lưu' }}
+<button type="submit" class="btn btn-primary">
+    {{ isset($room) ? 'Cập nhật' : 'Thêm mới' }}
 </button>
+
+<a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary mt-2">⬅️ Quay lại</a>

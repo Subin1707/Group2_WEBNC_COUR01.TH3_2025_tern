@@ -24,7 +24,7 @@
             @forelse ($theaters as $theater)
                 <tr>
                     <td>{{ $theater->name }}</td>
-                    <td>{{ $theater->location }}</td>
+                    <td>{{ $theater->address }}</td>
                     <td>{{ $theater->total_rooms }}</td>
                     <td>
                         <a href="{{ route('theaters.show', $theater) }}" class="btn btn-info btn-sm">👁️</a>

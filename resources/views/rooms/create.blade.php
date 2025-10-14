@@ -6,7 +6,8 @@
 
     {{-- Form thêm phòng --}}
     <form action="{{ route('admin.rooms.store') }}" method="POST">
-        @include('rooms._form')
+        @csrf
+        @include('rooms._form', ['theaters' => $theaters])
     </form>
 
     {{-- Nút quay lại --}}

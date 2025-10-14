@@ -22,65 +22,76 @@ class TheaterController extends Controller
         return view('theaters.index', compact('theaters'));
     }
 
-    // 👁️ Chi tiết rạp (Client + Admin)
+    // 👁️ Chi tiết rạp
     public function show(Theater $theater)
     {
         return view('theaters.show', compact('theater'));
     }
 
-    // ➕ Form thêm rạp (chỉ Admin)
+    // ➕ Form thêm rạp (Admin)
     public function create()
     {
         $this->authorizeAdmin();
         return view('theaters.create');
     }
 
-    // 💾 Lưu rạp mới (chỉ Admin)
+    // 💾 Lưu rạp mới (Admin)
     public function store(Request $request)
     {
         $this->authorizeAdmin();
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'nullable|string|max:500',
+            'address' => 'required|string|max:500',
             'total_rooms' => 'nullable|integer|min:0',
         ]);
 
-        Theater::create($request->only('name', 'location', 'total_rooms'));
+        Theater::create([
+            'name' => $request->name,
+            'address' => $request->address,     // ✅ Giữ nguyên
+            'total_rooms' => $request->total_rooms ?? 0,  // ✅ Nếu null → gán 0
+        ]);
 
-        return redirect()->route('admin.theaters.index')->with('success', '🎬 Thêm rạp thành công!');
+        return redirect()->route('admin.theaters.index')
+                         ->with('success', '🎬 Thêm rạp thành công!');
     }
 
-    // ✏️ Form sửa rạp (chỉ Admin)
+    // ✏️ Form sửa rạp (Admin)
     public function edit(Theater $theater)
     {
         $this->authorizeAdmin();
         return view('theaters.edit', compact('theater'));
     }
 
-    // 🔄 Cập nhật (chỉ Admin)
+    // 🔄 Cập nhật (Admin)
     public function update(Request $request, Theater $theater)
     {
         $this->authorizeAdmin();
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'nullable|string|max:500',
+            'address' => 'required|string|max:500',
             'total_rooms' => 'nullable|integer|min:0',
         ]);
 
-        $theater->update($request->only('name', 'location', 'total_rooms'));
+        $theater->update([
+            'name' => $request->name,
+            'address' => $request->address,     // ✅ Chính xác
+            'total_rooms' => $request->total_rooms ?? 0, // ✅ Nếu trống → giữ 0
+        ]);
 
-        return redirect()->route('admin.theaters.index')->with('success', '✅ Cập nhật rạp thành công!');
+        return redirect()->route('admin.theaters.index')
+                         ->with('success', '✅ Cập nhật rạp thành công!');
     }
 
-    // 🗑️ Xóa (chỉ Admin)
+    // 🗑️ Xóa (Admin)
     public function destroy(Theater $theater)
     {
         $this->authorizeAdmin();
 
         $theater->delete();
-        return redirect()->route('admin.theaters.index')->with('success', '🗑️ Xóa rạp thành công!');
+        return redirect()->route('admin.theaters.index')
+                         ->with('success', '🗑️ Xóa rạp thành công!');
     }
 
     // 🔒 Kiểm tra quyền admin

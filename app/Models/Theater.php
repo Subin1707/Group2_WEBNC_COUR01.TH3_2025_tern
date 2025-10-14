@@ -12,7 +12,9 @@ class Theater extends Model
     protected $fillable = [
         'name',
         'address',
+        'city',
         'phone',
+        'total_rooms', // ✅ Thêm dòng này để cho phép lưu tổng số phòng
     ];
 
     public function rooms()

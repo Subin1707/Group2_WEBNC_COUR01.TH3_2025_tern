@@ -28,7 +28,7 @@
     <div class="mb-3">
         <label for="release_date" class="form-label">Ngày phát hành</label>
         <input type="date" name="release_date" id="release_date"
-               class="form-control" value="{{ old('release_date', $movie->release_date ?? '') }}">
+               class="form-control" value="{{ old('release_date', $movie->release_date?->format('Y-m-d') ?? '') }}">
     </div>
 
     <div class="mb-3">
@@ -40,7 +40,7 @@
         <label for="poster" class="form-label">Poster</label>
         <input type="file" name="poster" id="poster" class="form-control">
         @if(isset($movie) && $movie->poster)
-            <img src="{{ asset('storage/' . $movie->poster) }}" alt="Poster" width="100" class="mt-2">
+            <img src="{{ asset('storage/' . $movie->poster) }}" alt="Poster" width="120" class="mt-2">
         @endif
     </div>
 
@@ -55,4 +55,6 @@
     <button type="submit" class="btn btn-primary">
         {{ isset($movie) ? 'Cập nhật' : 'Thêm mới' }}
     </button>
+
+    <a href="{{ route('admin.movies.index') }}" class="btn btn-secondary ms-2">⬅️ Quay lại</a>
 </form>
