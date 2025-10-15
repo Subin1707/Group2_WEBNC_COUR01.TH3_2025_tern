@@ -3,7 +3,7 @@
 @section('content')
 <h1>✏️ Sửa Booking #{{ $booking->id }}</h1>
 
-<form action="{{ route('bookings.update', $booking->id) }}" method="POST">
+<form action="{{ route('admin.bookings.update', $booking->id) }}" method="POST">
     @csrf
     @method('PUT')
 

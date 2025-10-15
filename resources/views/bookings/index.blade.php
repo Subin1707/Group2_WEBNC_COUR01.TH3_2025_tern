@@ -51,9 +51,9 @@
             </td>
             @if(Auth::user()->role === 'admin')
             <td>
-                <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-info btn-sm">Xem</a>
-                <a href="{{ route('bookings.edit', $booking->id) }}" class="btn btn-warning btn-sm">Sửa</a>
-                <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST" style="display:inline-block;">
+                <a href="{{ route('admin.bookings.show', $booking->id) }}" class="btn btn-info btn-sm">Xem</a>
+                <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="btn btn-warning btn-sm">Sửa</a>
+                <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST" style="display:inline-block;">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>

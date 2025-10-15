@@ -13,7 +13,7 @@
 </ul>
 
 @if(Auth::user()->role === 'admin')
-    <a href="{{ route('bookings.edit', $booking->id) }}" class="btn btn-warning">✏️ Sửa</a>
+    <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="btn btn-warning">✏️ Sửa</a>
 @endif
 <a href="{{ route('bookings.index') }}" class="btn btn-secondary">⬅ Quay lại</a>
 @endsection
