@@ -15,7 +15,8 @@
             <div class="col-md-5">
                 <div class="top_1m">
                     <form action="{{ route('movies.index') }}" method="GET" class="input-group">
-                        <input type="text" name="search" class="form-control bg-black text-white" placeholder="Tìm phim...">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                            class="form-control bg-black text-white" placeholder="Tìm phim...">
                         <button class="btn text-white bg_red rounded-0 border-0" type="submit">Tìm</button>
                     </form>
                 </div>

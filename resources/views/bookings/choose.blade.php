@@ -25,10 +25,12 @@
             <td>{{ number_format($showtime->price) }} ₫</td>
             <td>
                 <a href="{{ route('bookings.create', $showtime->id) }}" class="btn btn-success btn-sm">Đặt vé</a>
+                
             </td>
         </tr>
         @endforeach
     </tbody>
+    
 </table>
 @endif
 @endsection

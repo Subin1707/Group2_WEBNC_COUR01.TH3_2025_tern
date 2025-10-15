@@ -12,7 +12,15 @@ class MovieController extends Controller
     // 📋 Hiển thị danh sách phim (client + admin)
     public function index()
     {
-        $movies = Movie::latest()->paginate(10);
+        $search = request('search');
+        if ($search) {
+            $movies = Movie::where('title', 'like', '%' . $search . '%')
+                           ->orWhere('genre', 'like', '%' . $search . '%')
+                           ->latest()
+                           ->paginate(10);
+        } else {
+            $movies = Movie::latest()->paginate(10);
+        }
         return view('movies.index', compact('movies'));
     }
 
