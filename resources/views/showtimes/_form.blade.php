@@ -1,5 +1,6 @@
 @csrf
 
+{{-- Hiển thị lỗi validation --}}
 @if ($errors->any())
     <div class="alert alert-danger">
         <ul class="mb-0">
@@ -49,5 +50,7 @@
         value="{{ old('price', $showtime->price ?? '') }}" min="0" step="1000" required>
 </div>
 
-<button type="submit" class="btn btn-success">💾 Lưu</button>
-<a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+<div class="mt-3">
+    <button type="submit" class="btn btn-success">💾 Lưu</button>
+    <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+</div>

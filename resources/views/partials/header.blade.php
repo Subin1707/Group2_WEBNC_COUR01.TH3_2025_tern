@@ -68,6 +68,7 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch chiếu</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}">Rạp</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                             {{-- ⚙️ Sửa route name cho đúng --}}
                             <li class="nav-item"><a class="nav-link" href="{{ route('bookings.index') }}">Đặt vé</a></li>
                         @endif

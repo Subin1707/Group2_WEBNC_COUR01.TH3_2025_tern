@@ -46,7 +46,7 @@ class RoomController extends Controller
 
         Room::create($request->all());
 
-        return redirect()->route('rooms.index')->with('success', '🎬 Thêm phòng chiếu thành công!');
+        return redirect()->route('admin.rooms.index')->with('success', '🎬 Thêm phòng chiếu thành công!');
     }
 
     /**
@@ -82,7 +82,7 @@ class RoomController extends Controller
 
         $room->update($request->all());
 
-        return redirect()->route('rooms.index')->with('success', '✅ Cập nhật thành công!');
+        return redirect()->route('admin.rooms.index')->with('success', '✅ Cập nhật thành công!');
     }
 
     /**
@@ -93,7 +93,7 @@ class RoomController extends Controller
         $this->authorizeAdmin();
         $room->delete();
 
-        return redirect()->route('rooms.index')->with('success', '🗑️ Xóa thành công!');
+        return redirect()->route('admin.rooms.index')->with('success', '🗑️ Xóa thành công!');
     }
 
     /**

@@ -9,37 +9,40 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    // 📋 Danh sách đặt vé (Admin)
+    // Admin: xem tất cả booking
     public function index()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem danh sách đặt vé.');
+        if (Auth::user()->role === 'admin') {
+            $bookings = Booking::with(['showtime.movie', 'user'])
+                               ->latest()
+                               ->paginate(10);
+        } else {
+            $bookings = Booking::where('user_id', Auth::id())
+                               ->with('showtime.movie')
+                               ->latest()
+                               ->paginate(10);
         }
 
-        $bookings = Booking::with(['showtime.movie', 'user'])
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.bookings.index', compact('bookings'));
+        return view('bookings.index', compact('bookings'));
     }
 
-    // 🕒 Trang chọn lịch chiếu trước khi đặt vé (Client)
+    // Client: danh sách suất chiếu để đặt vé
     public function chooseShowtime()
     {
-        $showtimes = Showtime::with(['movie', 'theater', 'room'])
-            ->orderBy('start_time', 'asc')
-            ->get();
+        $showtimes = Showtime::with('movie', 'room')
+                             ->orderBy('start_time', 'asc')
+                             ->get();
 
         return view('bookings.choose', compact('showtimes'));
     }
 
-    // ➕ Form đặt vé cho 1 suất chiếu cụ thể (Client)
+    // Client: form đặt vé cho suất chiếu cụ thể
     public function create(Showtime $showtime)
     {
         return view('bookings.create', compact('showtime'));
     }
 
-    // 💾 Lưu vé mới (Client)
+    // Client: lưu vé
     public function store(Request $request)
     {
         $request->validate([
@@ -57,47 +60,43 @@ class BookingController extends Controller
         ]);
 
         return redirect()->route('bookings.history')
-            ->with('success', '🎟️ Đặt vé thành công!');
+                         ->with('success', '🎟️ Đặt vé thành công!');
     }
 
-    // 🧾 Lịch sử đặt vé (Client)
+    // Client: lịch sử đặt vé
     public function history()
     {
         $bookings = Booking::where('user_id', Auth::id())
-            ->with('showtime.movie')
-            ->latest()
-            ->get();
+                           ->with('showtime.movie')
+                           ->latest()
+                           ->get();
 
         return view('bookings.history', compact('bookings'));
     }
 
-    // 👁️ Chi tiết (Admin)
+    // Chi tiết booking (Admin xem tất, Client xem của chính họ)
     public function show(Booking $booking)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xem chi tiết đặt vé.');
+        if (Auth::user()->role === 'client' && $booking->user_id !== Auth::id()) {
+            abort(403, 'Bạn không có quyền xem chi tiết này.');
         }
 
-        return view('admin.bookings.show', compact('booking'));
+        return view('bookings.show', compact('booking'));
     }
 
-    // ✏️ Sửa (Admin)
+    // Admin: sửa booking
     public function edit(Booking $booking)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền chỉnh sửa đặt vé.');
-        }
-
+        $this->authorizeAdmin();
         $showtimes = Showtime::with('movie')->get();
-        return view('admin.bookings.edit', compact('booking', 'showtimes'));
+
+        return view('bookings.edit', compact('booking', 'showtimes'));
     }
 
-    // 🔄 Cập nhật (Admin)
+    // Admin: cập nhật booking
     public function update(Request $request, Booking $booking)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền cập nhật đặt vé.');
-        }
+        $this->authorizeAdmin();
 
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
@@ -107,19 +106,26 @@ class BookingController extends Controller
         ]);
 
         $booking->update($request->all());
-        return redirect()->route('admin.bookings.index')
-            ->with('success', '✅ Cập nhật đặt vé thành công!');
+
+        return redirect()->route('bookings.index')
+                         ->with('success', '✅ Cập nhật booking thành công!');
     }
 
-    // 🗑️ Xóa (Admin)
+    // Admin: xóa booking
     public function destroy(Booking $booking)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Bạn không có quyền xóa đặt vé.');
-        }
-
+        $this->authorizeAdmin();
         $booking->delete();
-        return redirect()->route('admin.bookings.index')
-            ->with('success', '🗑️ Xóa đặt vé thành công!');
+
+        return redirect()->route('bookings.index')
+                         ->with('success', '🗑️ Xóa booking thành công!');
+    }
+
+    // Phương thức kiểm tra admin
+    private function authorizeAdmin()
+    {
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            abort(403, '⛔ Bạn không có quyền truy cập.');
+        }
     }
 }

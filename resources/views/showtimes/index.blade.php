@@ -5,16 +5,16 @@
     <h1>🎬 Danh sách suất chiếu</h1>
 
     {{-- Chỉ admin mới được thêm suất chiếu --}}
-    @if(Auth::check() && Auth::user()->is_admin)
+    @if(Auth::check() && Auth::user()->role === 'admin')
         <a href="{{ route('admin.showtimes.create') }}" class="btn btn-primary mb-3">➕ Thêm suất chiếu</a>
     @endif
 
     <table class="table table-bordered">
-        <thead class="table-light">
+        <thead>
             <tr>
                 <th>Phim</th>
                 <th>Phòng chiếu</th>
-                <th>Thời gian chiếu</th>
+                <th>Thời gian</th>
                 <th>Giá vé (VNĐ)</th>
                 <th>Hành động</th>
             </tr>
@@ -27,21 +27,15 @@
                     <td>{{ date('d/m/Y H:i', strtotime($showtime->start_time)) }}</td>
                     <td>{{ number_format($showtime->price, 0, ',', '.') }}</td>
                     <td>
-                        {{-- Ai cũng có thể xem chi tiết --}}
-                        @if(Auth::check() && Auth::user()->is_admin)
+                        @if(Auth::check() && Auth::user()->role === 'admin')
                             <a href="{{ route('admin.showtimes.show', $showtime->id) }}" class="btn btn-info btn-sm">👁 Xem</a>
                             <a href="{{ route('admin.showtimes.edit', $showtime->id) }}" class="btn btn-warning btn-sm">✏️ Sửa</a>
-
-                            <form action="{{ route('admin.showtimes.destroy', $showtime->id) }}" 
-                                  method="POST" 
-                                  style="display:inline;" 
-                                  onsubmit="return confirm('Xóa suất chiếu này?')">
+                            <form action="{{ route('admin.showtimes.destroy', $showtime->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">🗑 Xóa</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xóa suất chiếu này?')">🗑 Xóa</button>
                             </form>
                         @else
-                            {{-- Client chỉ được xem chi tiết --}}
                             <a href="{{ route('showtimes.show', $showtime->id) }}" class="btn btn-info btn-sm">👁 Xem</a>
                         @endif
                     </td>
@@ -54,9 +48,6 @@
         </tbody>
     </table>
 
-    {{-- Phân trang --}}
-    <div class="mt-3">
-        {{ $showtimes->links() }}
-    </div>
+    {{ $showtimes->links() }}
 </div>
 @endsection

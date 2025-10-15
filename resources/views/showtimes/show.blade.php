@@ -13,10 +13,14 @@
     </ul>
 
     {{-- Nút quay lại khác nhau giữa admin và client --}}
-    @if(Auth::check() && Auth::user()->is_admin)
-        <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+    @auth
+        @if(Auth::user()->role === 'admin')
+            <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+        @else
+            <a href="{{ route('showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+        @endif
     @else
         <a href="{{ route('showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
-    @endif
+    @endauth
 </div>
 @endsection
