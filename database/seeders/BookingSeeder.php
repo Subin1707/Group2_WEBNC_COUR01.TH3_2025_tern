@@ -15,16 +15,26 @@ class BookingSeeder extends Seeder
         $showtimes = Showtime::all();
 
         foreach ($users as $user) {
-            // mỗi user đặt 2-3 vé ngẫu nhiên
-            $sampleShowtimes = $showtimes->random(rand(2,3));
+            // Mỗi user đặt 2-3 vé ngẫu nhiên
+            $sampleShowtimes = $showtimes->random(rand(2, 3));
 
             foreach ($sampleShowtimes as $showtime) {
+                // Sinh ngẫu nhiên 1–5 ghế
+                $seats = [];
+                $rows = range('A', 'F'); // Hàng A đến F
+
+                for ($i = 0; $i < rand(1, 5); $i++) {
+                    $row = $rows[array_rand($rows)];
+                    $number = rand(1, 10);
+                    $seats[] = $row . $number;
+                }
+
                 Booking::create([
                     'user_id' => $user->id,
                     'showtime_id' => $showtime->id,
-                    'seats' => implode(',', range(1, rand(1,5))), // số ghế ngẫu nhiên
-                    'total_price' => $showtime->price * rand(1,5),
-                    'status' => 'confirmed'
+                    'seats' => implode(',', $seats),
+                    'total_price' => $showtime->price * count($seats),
+                    'status' => 'confirmed',
                 ]);
             }
         }

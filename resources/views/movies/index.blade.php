@@ -1,60 +1,83 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>🎬 Danh sách phim</h1>
+<section id="trend" class="pt-4 pb-5">
+    <div class="container">
+        <div class="row trend_1">
+            <div class="col-md-6 col-6">
+                <div class="trend_1l">
+                    <h4 class="mb-0">
+                        <i class="fa fa-youtube-play align-middle col_red me-1"></i>
+                        Danh sách <span class="col_red">Phim</span>
+                    </h4>
+                </div>
+            </div>
+            
+        </div>
 
-    {{-- Chỉ admin mới được thêm phim --}}
-    @if(Auth::check() && Auth::user()->role === 'admin')
-        <a href="{{ route('admin.movies.create') }}" class="btn btn-primary mb-3">➕ Thêm phim mới</a>
-    @endif
+        <div class="row trend_2 mt-4">
+            <div class="trend_2i row">
+                @forelse ($movies as $movie)
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="trend_2im clearfix position-relative">
+                            <div class="trend_2im1 clearfix">
+                                <div class="grid">
+                                    <figure class="effect-jazz mb-0">
+                                        {{-- Nếu có ảnh phim --}}
+                                        @if($movie->image)
+                                            <a href="{{ route('movies.show', $movie->id) }}">
+                                                <img src="{{ asset('storage/' . $movie->image) }}" 
+                                                     class="w-100" 
+                                                     alt="{{ $movie->title }}">
+                                            </a>
+                                        @else
+                                            <a href="{{ route('movies.show', $movie->id) }}">
+                                                <img src="{{ asset('img/default-movie.jpg') }}" 
+                                                     class="w-100" 
+                                                     alt="{{ $movie->title }}">
+                                            </a>
+                                        @endif
+                                    </figure>
+                                </div>
+                            </div>
 
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Tên phim</th>
-                <th>Thể loại</th>
-                <th>Thời lượng</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($movies as $movie)
-                <tr>
-                    <td>{{ $movie->title }}</td>
-                    <td>{{ $movie->genre ?? '—' }}</td>
-                    <td>{{ $movie->duration ?? '—' }} phút</td>
-                    <td>
-                        {{-- Ai cũng có thể xem chi tiết --}}
-                        <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-info btn-sm">👁️ Xem</a>
+                            {{-- Nút xem trailer hoặc chi tiết --}}
+                            <div class="trend_2im2 clearfix text-center position-absolute w-100 top-0">
+                                <span class="fs-1">
+                                    <a class="col_red" href="{{ route('movies.show', $movie->id) }}">
+                                        <i class="fa fa-youtube-play"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
 
-                        {{-- Chỉ admin mới được sửa hoặc xóa --}}
-                        @if(Auth::check() && Auth::user()->role === 'admin')
-                            <a href="{{ route('admin.movies.edit', $movie->id) }}" class="btn btn-warning btn-sm">✏️ Sửa</a>
+                        <div class="trend_2ilast bg_grey p-3 clearfix text-center">
+                            <h5>
+                                <a class="col_red" href="{{ route('movies.show', $movie->id) }}">
+                                    {{ $movie->title }}
+                                </a>
+                            </h5>
+                            <p class="mb-2">{{ Str::limit($movie->description ?? 'Không có mô tả', 60) }}</p>
+                            <span class="col_red">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                            </span>
+                            <p class="mb-0">{{ $movie->genre ?? 'Thể loại không xác định' }}</p>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-center">Không có phim nào để hiển thị.</p>
+                @endforelse
+            </div>
+        </div>
 
-                            <form action="{{ route('admin.movies.destroy', $movie->id) }}" 
-                                  method="POST" 
-                                  style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="btn btn-danger btn-sm" 
-                                        onclick="return confirm('Xóa phim này?')">🗑️ Xóa</button>
-                            </form>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="text-center">Không có phim nào.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    {{-- Phân trang --}}
-    <div class="mt-3">
-        {{ $movies->links() }}
+        {{-- Phân trang --}}
+        <div class="mt-4 d-flex justify-content-center">
+            {{ $movies->links() }}
+        </div>
     </div>
-</div>
+</section>
 @endsection

@@ -19,7 +19,9 @@ class MovieController extends Controller
     // 👁️ Xem chi tiết phim
     public function show(Movie $movie)
     {
-        return view('movies.show', compact('movie'));
+        $movie = Movie::with('comments.author')->findOrFail($movie->id);
+        $comments = $movie->comments()->with('author')->latest()->paginate(10);
+        return view('movies.show', compact('movie', 'comments'));
     }
 
     // ➕ Form thêm phim mới (chỉ admin)
@@ -106,5 +108,10 @@ class MovieController extends Controller
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             abort(403, 'Bạn không có quyền truy cập.');
         }
+    }
+    public function comments(Movie $movie)
+    {
+        $comments = $movie->comments()->with('author')->latest()->paginate(10);
+        return view('movies.comments', compact('movie', 'comments'));
     }
 }

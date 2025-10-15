@@ -11,7 +11,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\CommentController;
 /*
 |--------------------------------------------------------------------------
 | 🌍 WEB ROUTES
@@ -57,6 +57,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index'); // chỉ booking của chính user
     Route::get('/bookings/history', [BookingController::class, 'history'])->name('bookings.history');
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show'); // chỉ xem booking của chính user
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
+            ->name('movies.comments.store');
+});
 });
 
 /* ============================================================
@@ -73,6 +77,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
         Route::resource('bookings', BookingController::class)->except(['create','store']); // admin không dùng route đặt vé client
+        Route::resource('comments', CommentController::class)->only(['index', 'destroy']);
     });
 
 /* ============================================================

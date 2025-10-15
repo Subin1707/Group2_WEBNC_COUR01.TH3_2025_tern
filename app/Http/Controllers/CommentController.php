@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
-use App\Models\News;
+use App\Models\Movie;
 
 class CommentController extends Controller
 {
@@ -28,18 +28,20 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, News $news)
-    {
-        //
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ]);
-        $data['news_id'] = $news->id;
-        $data['author_id'] = Auth::check()?Auth::id():null;
-        Comment::create($data);
-        return redirect()->route('news.show', $news->id);
-    }
+    public function store(Request $request, Movie $movie)
+        {
+            $data = $request->validate([
+                'title' => 'nullable|string|max:255',
+                'content' => 'required|string',
+            ]);
+
+            $data['movies_id'] = $movie->id;
+            $data['author_id'] = Auth::check() ? Auth::id() : null;
+
+            Comment::create($data);
+
+            return redirect()->route('movies.show', $movie->id)->with('success', 'Comment added!');
+        }
 
     /**
      * Display the specified resource.

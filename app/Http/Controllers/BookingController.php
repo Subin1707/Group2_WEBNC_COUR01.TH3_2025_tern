@@ -47,10 +47,17 @@ class BookingController extends Controller
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string',
-            'total_price' => 'required|numeric|min:0',
+            'seats'       => 'required|string|max:5', // chỉ 1 ghế, ví dụ A1
         ]);
 
+        // 🔍 Kiểm tra ghế đã được đặt chưa
+        $exists = Booking::where('showtime_id', $request->showtime_id)
+                        ->where('seats', $request->seats)
+                        ->exists();
+
+        if ($exists) {
+            return back()->with('error', '⚠️ Ghế này đã được đặt rồi, vui lòng chọn ghế khác!');
+        }
         Booking::create([
             'user_id'     => Auth::id(),
             'showtime_id' => $request->showtime_id,
