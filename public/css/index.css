@@ -241,4 +241,8 @@ min-height:515px;
 
  }
 
+ .table{
+    color : white;
+    --bs-table-striped-color: white;
+ }
 
