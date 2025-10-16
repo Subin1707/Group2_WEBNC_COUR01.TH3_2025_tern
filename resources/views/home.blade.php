@@ -19,12 +19,12 @@
 
             @auth
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Quản lý phim</a>
+                    <a href="{{ route('admin.movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Quản lý phim</a>
                 @else
-                    <a href="{{ route('movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
+                    <a href="{{ route('movies.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
                 @endif
             @else
-                <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
+                <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Xem ngay</a>
             @endauth
         </div>
         
@@ -35,12 +35,12 @@
 
             @auth
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.bookings.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Quản lý đặt vé</a>
+                    <a href="{{ route('admin.bookings.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Quản lý đặt vé</a>
                 @else
-                    <a href="{{ route('showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
+                    <a href="{{ route('showtimes.index') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
                 @endif
             @else
-                <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
+                <a href="{{ route('login') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500">Đặt vé</a>
             @endauth
         </div>
 
@@ -50,7 +50,7 @@
             <p class="text-gray-300">Nhận ưu đãi và điểm thưởng khi đăng ký tài khoản khách hàng thân thiết.</p>
 
             @auth
-                <span class="inline-block mt-4 px-4 py-2 bg-gray-500 text-black font-semibold rounded-lg">Bạn đã là thành viên</span>
+                <span class="inline-block mt-4 px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg">Bạn đã là thành viên</span>
             @else
                 <a href="{{ route('register') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">Tham gia ngay</a>
             @endauth
