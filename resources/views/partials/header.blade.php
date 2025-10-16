@@ -85,6 +85,7 @@
 
                     {{-- ❌ Chưa đăng nhập --}}
                     @guest
+                        <li class="nav-item"><a class="nav-link" href="{{ '/' }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Phim</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Lịch chiếu</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Rạp</a></li>

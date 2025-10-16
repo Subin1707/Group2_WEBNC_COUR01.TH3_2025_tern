@@ -15,6 +15,24 @@
             
         </div>
 
+        <div class="row trend_1">
+            <div class="col-md-6 col-6">
+                <div class="trend_1l">
+                    <h4 class="mb-0">
+                       @auth
+                            @if(Auth::user()->role === 'admin')
+                                <a href="{{ route('admin.movies.create') }}" class="align-middle  me-1">
+                                    ➕Thêm phim
+                                </a>
+                            @endif
+                        @endauth
+                    </h4>
+                </div>
+            </div>
+            
+        </div>
+
+
         <div class="row trend_2 mt-4">
             <div class="trend_2i row">
                 @forelse ($movies as $movie)
