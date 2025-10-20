@@ -20,5 +20,7 @@ class MovieSeeder extends Seeder
             'description' => 'Sci-fi thriller',
             'duration' => 148
         ]);
+        
+        Movie::factory()->count(50)->create();
     }
 }

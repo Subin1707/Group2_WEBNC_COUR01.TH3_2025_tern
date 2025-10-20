@@ -19,7 +19,7 @@ class MovieController extends Controller
                            ->latest()
                            ->paginate(10);
         } else {
-            $movies = Movie::latest()->paginate(10);
+            $movies = Movie::latest()->paginate(16);
         }
         return view('movies.index', compact('movies'));
     }
@@ -45,23 +45,34 @@ class MovieController extends Controller
     {
         $this->authorizeAdmin();
 
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'genre'       => 'nullable|string|max:255',
-            'duration'    => 'required|integer|min:1',
-            'description' => 'nullable|string',
-            'poster'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'status'      => 'required|in:active,inactive',
-        ]);
+    $data = $request->validate([
+        'title'       => 'required|string|max:255',
+        'genre'       => 'nullable|string|max:255',
+        'duration'    => 'required|integer|min:1',
+        'description' => 'nullable|string',
+        'poster'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'status'      => 'required|in:active,inactive',
+    ]);
 
-        if ($request->hasFile('poster')) {
-            $data['poster'] = $request->file('poster')->store('movies', 'public');
-        }
+    // 🔹 Nếu có upload ảnh
+    if ($request->hasFile('poster')) {
+        $file = $request->file('poster');
 
-        Movie::create($data);
+        // Tạo tên file duy nhất
+        $filename = time() . '_' . $file->getClientOriginalName();
 
-        return redirect()->route('admin.movies.index')->with('success', '🎬 Thêm phim thành công!');
+        // Lưu file vào thư mục public/img
+        $file->move(public_path('img'), $filename);
+
+        // Lưu đường dẫn vào database
+        $data['poster'] = 'img/' . $filename;
     }
+
+    Movie::create($data);
+
+    return redirect()->route('admin.movies.index')->with('success', '🎬 Thêm phim thành công!');
+}
+
 
     // ✏️ Form chỉnh sửa phim (chỉ admin)
     public function edit(Movie $movie)
@@ -84,27 +95,37 @@ class MovieController extends Controller
             'status'      => 'required|in:active,inactive',
         ]);
 
+        // Nếu có upload ảnh mới
         if ($request->hasFile('poster')) {
-            if ($movie->poster && Storage::disk('public')->exists($movie->poster)) {
-                Storage::disk('public')->delete($movie->poster);
+            $file = $request->file('poster');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('img'), $filename);
+
+            // Xóa ảnh cũ nếu có
+            if ($movie->poster && file_exists(public_path($movie->poster))) {
+                unlink(public_path($movie->poster));
             }
-            $data['poster'] = $request->file('poster')->store('movies', 'public');
+
+            // Lưu đường dẫn ảnh mới vào DB
+            $data['poster'] = 'img/' . $filename;
         }
 
+        // Cập nhật phim
         $movie->update($data);
 
         return redirect()->route('admin.movies.index')->with('success', '✅ Cập nhật phim thành công!');
     }
 
-    // 🗑️ Xóa phim (chỉ admin)
     public function destroy(Movie $movie)
     {
         $this->authorizeAdmin();
 
-        if ($movie->poster && Storage::disk('public')->exists($movie->poster)) {
-            Storage::disk('public')->delete($movie->poster);
+        // Xóa ảnh trong thư mục public/img (nếu có)
+        if ($movie->poster && file_exists(public_path($movie->poster))) {
+            unlink(public_path($movie->poster));
         }
 
+        // Xóa phim khỏi database
         $movie->delete();
 
         return redirect()->route('admin.movies.index')->with('success', '🗑️ Đã xóa phim thành công!');

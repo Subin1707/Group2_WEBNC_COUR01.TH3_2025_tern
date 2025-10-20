@@ -1,11 +1,4 @@
-/*
-Template Name: Planet
-File: Layout CSS
-Author: TemplatesOnWeb
-Author URI: https://www.templateonweb.com/
-Licence: <a href="https://www.templateonweb.com/license">Website Template Licence</a>
-*/
-/*********************about****************/
+
 .about_pgm{
 background-color: rgba(0, 0, 0, 0.8);
 padding-top:50px;
@@ -26,9 +19,6 @@ padding:30px 15px 0px 15px;
 background:#000000c2;
 height:60%;
  }
-
-/*********************about_end****************/
-
 
 @media screen and (max-width : 767px){
 .about_pg1 p{

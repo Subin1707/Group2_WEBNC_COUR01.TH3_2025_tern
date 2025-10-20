@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <section id="trend" class="pt-4 pb-5">
     <div class="container">
@@ -42,17 +41,17 @@
                                 <div class="grid">
                                     <figure class="effect-jazz mb-0">
                                         {{-- Nếu có ảnh phim --}}
-                                        @if($movie->image)
+                                        @if($movie->poster)
                                             <a href="{{ route('movies.show', $movie->id) }}">
-                                                <img src="{{ asset('storage/' . $movie->image) }}" 
-                                                     class="w-100" 
-                                                     alt="{{ $movie->title }}">
+                                                <img src="{{ asset($movie->poster) }}" 
+                                                    class="w-100" 
+                                                    alt="{{ $movie->title }}">
                                             </a>
                                         @else
                                             <a href="{{ route('movies.show', $movie->id) }}">
-                                                <img src="{{ asset('img/default-movie.jpg') }}" 
-                                                     class="w-100" 
-                                                     alt="{{ $movie->title }}">
+                                                <img src="{{ asset('img/1.jpg') }}" 
+                                                    class="w-100" 
+                                                    alt="{{ $movie->title }}">
                                             </a>
                                         @endif
                                     </figure>
@@ -72,7 +71,7 @@
                         <div class="trend_2ilast bg_grey p-3 clearfix text-center">
                             <h5>
                                 <a class="col_red" href="{{ route('movies.show', $movie->id) }}">
-                                    {{ $movie->title }}
+                                    {{ Str::limit($movie->title, 20) }}
                                 </a>
                             </h5>
                             <p class="mb-2">{{ Str::limit($movie->description ?? 'Không có mô tả', 60) }}</p>
@@ -91,6 +90,7 @@
                 @endforelse
             </div>
         </div>
+        
 
         {{-- Phân trang --}}
         <div class="mt-4 d-flex justify-content-center">
