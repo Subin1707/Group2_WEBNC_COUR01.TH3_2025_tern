@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Booking;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -21,15 +22,18 @@ class DashboardController extends Controller
 
         // Nếu admin, lấy số liệu thống kê
         if ($user->role === 'admin') {
-            $movies_count = Movie::count();
-            $showtimes_count = Showtime::count();
-            $bookings_count = Booking::count();
+            $userCount = User::count();
+            $movieCount = Movie::count();
+            $ticketCount = Booking::count();
+            $revenue = Booking::sum('total_price');
+
 
             return view('dashboard', compact(
                 'user',
-                'movies_count',
-                'showtimes_count',
-                'bookings_count'
+                'userCount',
+                'movieCount',
+                'ticketCount',
+                'revenue'
             ));
         }
 
@@ -39,8 +43,38 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'user',
+            'userCount',
+            'movieCount',
+            '$ticketCount',
+            '$revenue',
             'user_bookings_count',
             'upcoming_showtimes_count'
         ));
     }
+    // Trang biểu đồ doanh thu
+    public function revenueChart()
+{
+    $monthlyRevenueData = Booking::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
+        ->groupBy('month')
+        ->pluck('total', 'month');
+
+    $movieRevenueData = Booking::join('showtimes', 'bookings.showtime_id', '=', 'showtimes.id')
+        ->join('movies', 'showtimes.movie_id', '=', 'movies.id')
+        ->selectRaw('movies.title, SUM(bookings.total_price) as total')
+        ->groupBy('movies.title')
+        ->pluck('total', 'movies.title');
+
+    $monthlyRevenue = [
+        'labels' => $monthlyRevenueData->keys()->map(fn($m) => "Tháng $m"),
+        'data' => $monthlyRevenueData->values()
+    ];
+
+    $movieRevenue = [
+        'labels' => $movieRevenueData->keys(),
+        'data' => $movieRevenueData->values()
+    ];
+
+    return view('revenue', compact('monthlyRevenue', 'movieRevenue'));
+}
+
 }

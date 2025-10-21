@@ -13,14 +13,31 @@ class ShowtimeController extends Controller
     /**
      * 📋 Hiển thị danh sách suất chiếu
      */
-    public function index()
-    {
-        $showtimes = Showtime::with(['movie', 'room'])
-            ->orderByDesc('start_time')
-            ->paginate(10);
+   public function index(Request $request)
+{
+    $query = Showtime::with(['movie', 'room']);
 
-        return view('showtimes.index', compact('showtimes'));
+    // 🔍 Nếu có từ khóa tìm kiếm
+    if ($request->has('search') && !empty($request->search)) {
+        $keyword = $request->search;
+
+        $query->where(function ($q) use ($keyword) {
+            $q->whereHas('movie', function ($m) use ($keyword) {
+                $m->where('title', 'like', "%{$keyword}%");
+            })
+            ->orWhereHas('room', function ($r) use ($keyword) {
+                $r->where('name', 'like', "%{$keyword}%");
+            })
+            ->orWhereDate('start_time', $keyword); // nếu nhập đúng ngày (yyyy-mm-dd)
+        });
     }
+
+    // 🕐 Sắp xếp và phân trang
+    $showtimes = $query->orderBy('start_time', 'asc')->paginate(10);
+
+    return view('showtimes.index', compact('showtimes'));
+}
+
 
     /**
      * ➕ Form tạo mới (chỉ admin)
@@ -48,6 +65,7 @@ class ShowtimeController extends Controller
             'start_time' => 'required|date|after:now',
             'price'      => 'required|numeric|min:0',
         ]);
+        
 
         Showtime::create($request->only(['movie_id', 'room_id', 'start_time', 'price']));
 

@@ -90,7 +90,6 @@
             totalPrice.value = 0;
         }
     }
-
     seatRow.addEventListener('change', updateSeat);
     seatNumber.addEventListener('change', updateSeat);
 </script>

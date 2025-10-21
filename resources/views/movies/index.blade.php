@@ -74,7 +74,7 @@
                                     {{ Str::limit($movie->title, 20) }}
                                 </a>
                             </h5>
-                            <p class="mb-2">{{ Str::limit($movie->description ?? 'Không có mô tả', 60) }}</p>
+                            <p class="mb-2">{{ Str::limit($movie->description ?? 'Không có mô tả', 50) }}</p>
                             <span class="col_red">
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>

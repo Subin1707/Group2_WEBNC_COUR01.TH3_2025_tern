@@ -17,6 +17,7 @@ class RoomController extends Controller
         $rooms = Room::with('theater')->latest()->paginate(10);
         $user = Auth::user(); // lấy thông tin user để phân quyền trong view
 
+        
         return view('rooms.index', compact('rooms', 'user'));
     }
 

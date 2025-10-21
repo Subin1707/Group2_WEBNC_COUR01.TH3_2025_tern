@@ -31,7 +31,7 @@ class BookingController extends Controller
     {
         $showtimes = Showtime::with('movie', 'room')
                              ->orderBy('start_time', 'asc')
-                             ->get();
+                             ->paginate(10);
 
         return view('bookings.choose', compact('showtimes'));
     }
@@ -49,6 +49,14 @@ class BookingController extends Controller
             'showtime_id' => 'required|exists:showtimes,id',
             'seats'       => 'required|string|max:5', // chỉ 1 ghế, ví dụ A1
         ]);
+
+        // 🕒 Lấy suất chiếu
+        $showtime = Showtime::findOrFail($request->showtime_id);
+
+        // 🔍 1️⃣ Kiểm tra ngày chiếu có ở tương lai không
+        if ($showtime->start_time < now()) {
+            return back()->with('error', '⚠️ Suất chiếu này đã qua, bạn không thể đặt vé nữa!');
+        }
 
         // 🔍 Kiểm tra ghế đã được đặt chưa
         $exists = Booking::where('showtime_id', $request->showtime_id)
@@ -76,7 +84,7 @@ class BookingController extends Controller
         $bookings = Booking::where('user_id', Auth::id())
                            ->with('showtime.movie')
                            ->latest()
-                           ->get();
+                           ->paginate(10);
 
         return view('bookings.history', compact('bookings'));
     }

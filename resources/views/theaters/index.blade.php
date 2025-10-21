@@ -2,7 +2,30 @@
 
 @section('content')
 <div class="container">
-    <h1>🎭 Danh sách rạp chiếu</h1>
+   
+    <div class="row trend_1">
+        <div class="col-md-6 col-6">
+            <div class="trend_1l">
+                <h4 class="mb-0">
+                    <i class="fa fa-building align-middle col_red me-1"></i>
+                    Danh sách <span class="col_red">Rạp chiếu</span>
+                </h4>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div class="col-md-5">
+                <div class="top_1m">
+                    <br>
+                    <form action="{{ route('theaters.index') }}" method="GET" class="input-group">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                            class="form-control bg-black text-white" placeholder="Tìm rạp chiếu...">
+                        <button class="btn text-white bg_red rounded-0 border-0" type="submit">Tìm</button>
+                    </form>
+                </div>
+                <br>
+    </div>
 
     {{-- Hiển thị nút thêm chỉ khi là admin --}}
     @auth

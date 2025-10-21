@@ -4,6 +4,7 @@
 <div class="container">
     <h1 class="mb-4">💺 Danh sách phòng chiếu</h1>
 
+    
     {{-- ✅ Thông báo thành công --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

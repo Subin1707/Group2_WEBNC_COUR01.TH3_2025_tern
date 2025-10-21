@@ -51,6 +51,6 @@
 </div>
 
 <div class="mt-3">
-    <button type="submit" class="btn btn-success">💾 Lưu</button>
-    <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>
+    <button type="submit" class="btn btn-success">Cập Nhật</button>
+    <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">↩ Quay lại</a>
 </div>

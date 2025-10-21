@@ -29,7 +29,17 @@
                         <li><a href="#"><i class="fa fa-facebook"></i></a></li>
                         <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                         <li><a href="#"><i class="fa fa-youtube"></i></a></li>
-                        <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                        <li>
+                            @auth
+                                <a href="{{ route('profile.index') }}">
+                                    <i class="fa fa-user"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('login') }}">
+                                    <i class="fa fa-user"></i>
+                                </a>
+                            @endauth
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -61,14 +71,14 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.movies.index') }}">Phim</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.theaters.index') }}">Rạp</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.rooms.index') }}">Phòng</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('admin.showtimes.index') }}">Lịch chiếu</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('admin.showtimes.index') }}">Suất chiếu</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.bookings.index') }}">Đặt vé</a></li>
 
                         @else
                             {{-- 🎟️ KHÁCH HÀNG --}}
-                            <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch chiếu</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Suất chiếu</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}">Rạp</a></li>
                             {{-- ⚙️ Sửa route name cho đúng --}}
                             <li class="nav-item"><a class="nav-link" href="{{ route('bookings.index') }}">Đặt vé</a></li>
@@ -86,9 +96,9 @@
                     {{-- ❌ Chưa đăng nhập --}}
                     @guest
                         <li class="nav-item"><a class="nav-link" href="{{ '/' }}">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Phim</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Lịch chiếu</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Rạp</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Lịch chiếu</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}">Rạp</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Đăng nhập</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Đăng ký</a></li>
                     @endguest

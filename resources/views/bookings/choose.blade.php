@@ -25,12 +25,16 @@
             <td>{{ number_format($showtime->price) }} ₫</td>
             <td>
                 <a href="{{ route('bookings.create', $showtime->id) }}" class="btn btn-success btn-sm">Đặt vé</a>
-                
             </td>
         </tr>
         @endforeach
     </tbody>
-    
 </table>
+
+{{-- 🔹 Thêm phân trang ở đây --}}
+<div class="mt-3 d-flex justify-content-center">
+    {{ $showtimes->links('pagination::bootstrap-5') }}
+</div>
+
 @endif
 @endsection

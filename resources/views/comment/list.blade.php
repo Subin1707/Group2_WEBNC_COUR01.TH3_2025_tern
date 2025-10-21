@@ -4,11 +4,7 @@
 <div class="blog_1l5 mt-3">
     @forelse($comments as $comment)
         <div class="blog_1l5i row mb-3">
-            <div class="col-md-2 col-2 pe-0">
-                <div class="blog_1l5il">
-                    <img src="{{ asset('img/default_user.png') }}" class="w-100" alt="avatar">
-                </div>
-            </div>
+            
             <div class="col-md-10 col-10">
                 <div class="blog_1l5ir">
                     <h5>

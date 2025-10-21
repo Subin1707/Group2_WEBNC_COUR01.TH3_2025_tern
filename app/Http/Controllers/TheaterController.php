@@ -9,18 +9,29 @@ use Illuminate\Support\Facades\Auth;
 class TheaterController extends Controller
 {
     // 📋 Danh sách rạp (Client và Admin)
-    public function index()
-    {
-        $theaters = Theater::latest()->paginate(10);
+    public function index(Request $request)
+{
+    // Lấy từ khóa tìm kiếm (nếu có)
+    $search = $request->input('search');
 
-        // Nếu là admin → hiển thị view quản trị
-        if (Auth::check() && Auth::user()->role === 'admin') {
-            return view('theaters.index', compact('theaters'));
-        }
+    // Query cơ bản
+    $query = Theater::query();
 
-        // Nếu là khách hoặc người dùng → vẫn dùng cùng view, nhưng ẩn nút CRUD
-        return view('theaters.index', compact('theaters'));
+    // Nếu có từ khóa → lọc theo tên hoặc địa chỉ
+    if (!empty($search)) {
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('address', 'like', "%{$search}%");
+        });
     }
+
+    // Phân trang + giữ từ khóa khi chuyển trang
+    $theaters = $query->latest()->paginate(10)->appends(['search' => $search]);
+
+    // Trả về view (chung cho admin và user)
+    return view('theaters.index', compact('theaters', 'search'));
+}
+
 
     // 👁️ Chi tiết rạp
     public function show(Theater $theater)
