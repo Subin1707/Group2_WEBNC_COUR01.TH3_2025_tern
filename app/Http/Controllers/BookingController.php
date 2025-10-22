@@ -27,14 +27,36 @@ class BookingController extends Controller
     }
 
     // Client: danh sách suất chiếu để đặt vé
-    public function chooseShowtime()
+    public function chooseShowtime(Request $request)
     {
-        $showtimes = Showtime::with('movie', 'room')
-                             ->orderBy('start_time', 'asc')
-                             ->paginate(10);
+        $query = Showtime::with('movie', 'room')->orderBy('start_time', 'desc');
+
+        // Lấy các tham số tìm kiếm
+        $keyword = $request->input('search');   // từ khóa tên phim hoặc phòng
+        $date = $request->input('date');        // ngày chiếu cụ thể (YYYY-MM-DD)
+
+        // Tìm kiếm theo tên phim hoặc tên phòng
+        if (!empty($keyword)) {
+            $query->where(function ($q) use ($keyword) {
+                $q->whereHas('movie', function ($sub) use ($keyword) {
+                    $sub->where('title', 'like', '%' . $keyword . '%');
+                })->orWhereHas('room', function ($sub) use ($keyword) {
+                    $sub->where('name', 'like', '%' . $keyword . '%');
+                });
+            });
+        }
+
+        // Lọc theo ngày chiếu
+        if (!empty($date)) {
+            $query->whereDate('start_time', $date);
+        }
+
+        // Phân trang và giữ lại tham số tìm kiếm
+        $showtimes = $query->paginate(10)->appends($request->query());
 
         return view('bookings.choose', compact('showtimes'));
     }
+
 
     // Client: form đặt vé cho suất chiếu cụ thể
     public function create(Showtime $showtime)

@@ -37,7 +37,10 @@
                 <a href="{{ route('movies.index') }}" class="btn btn-secondary">
                     Quay lại
                 </a>
-
+                
+                <a href="{{ route('bookings.choose', ['search' => $movie->title]) }}" class="btn btn-danger">
+                     Đặt vé ngay
+                </a>
                 @if(Auth::check() && Auth::user()->role === 'admin')
                     <a href="{{ route('admin.movies.edit', $movie->id) }}" class="btn btn-warning">
                          Sửa
@@ -49,6 +52,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">🗑️ Xóa</button>
+
                     </form>
                 @endif
             </div>
