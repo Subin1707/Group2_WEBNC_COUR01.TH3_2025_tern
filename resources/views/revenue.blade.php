@@ -2,7 +2,16 @@
 
 @section('content')
 <div class="container py-5">
-    <h2 class="mb-4 text-center text-white">📊 Thống kê doanh thu</h2>
+<div class="row trend_1 mb-4">
+    <div class="col-md-12">
+        <div class="trend_1l text-center">
+            <h4 class="mb-0 text-white">
+                <i class="fa fa-bar-chart align-middle col_red me-1"></i>
+                Thống kê <span class="col_red">Doanh thu</span>
+            </h4>
+        </div>
+    </div>
+</div>
 
     <div class="row">
         <div class="col-md-6 mb-4">
