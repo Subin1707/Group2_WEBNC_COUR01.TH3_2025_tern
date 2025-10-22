@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>📜 Lịch sử đặt vé</h1>
+<div class="row trend_1 mb-4">
+    <div class="col-md-12">
+        <div class="trend_1l">
+            <h4 class="mb-0">
+                <i class="fa fa-history align-middle col_red me-1"></i>
+                Lịch sử <span class="col_red">Đặt vé</span>
+            </h4>
+        </div>
+    </div>
+</div>
 
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>

@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>🎬 Chọn suất chiếu để đặt vé</h1>
+<div class="row trend_1 mb-4">
+    <div class="col-md-6 col-6">
+        <div class="trend_1l">
+            <h4 class="mb-0">
+                <i class="fa fa-clock-o align-middle col_red me-1"></i>
+                Danh sách <span class="col_red">Suất chiếu</span>
+            </h4>
+        </div>
+    </div>
+</div>
 
 <div class="col-md-5">
     <div class="top_1m">

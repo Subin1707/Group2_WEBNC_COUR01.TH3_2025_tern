@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>🎫 Danh sách Booking</h1>
+<div class="row trend_1 mb-4">
+    <div class="col-md-6 col-6">
+        <div class="trend_1l">
+            <h4 class="mb-0">
+                <i class="fa fa-ticket align-middle col_red me-1"></i>
+                Danh sách <span class="col_red">Booking</span>
+            </h4>
+        </div>
+    </div>
+</div>
 
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>

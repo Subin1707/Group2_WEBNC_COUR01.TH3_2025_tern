@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>🎟️ Đặt vé cho: {{ $showtime->movie->title ?? 'N/A' }}</h1>
+<div class="row trend_1 mb-4">
+    <div class="col-md-12">
+        <div class="trend_1l">
+            <h4 class="mb-0">
+                <i class="fa fa-ticket align-middle col_red me-1"></i>
+                Đặt vé cho: <span class="col_red">{{ $showtime->movie->title ?? 'N/A' }}</span>
+            </h4>
+        </div>
+    </div>
+</div>
 
 {{-- ⚠️ Thông báo lỗi hoặc thành công --}}
 @if (session('error'))
