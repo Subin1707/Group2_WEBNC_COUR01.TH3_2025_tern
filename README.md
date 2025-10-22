@@ -325,3 +325,5 @@ Hệ thống sử dụng MySQL để lưu trữ các dữ liệu như phim, rạ
 Dự án được phát triển và chạy trên XAMPP, môi trường tích hợp gồm Apache, PHP và MySQL, giúp việc kiểm thử và triển khai ứng dụng trở nên thuận tiện, đồng bộ giữa các môi trường phát triển.
 
 ##### Công cụ:
+
+Dự án sử dụng Composer để quản lý thư viện và phụ thuộc, cùng với Artisan CLI để tạo nhanh các thành phần như model, controller, migration và chạy các lệnh quản trị. Hai công cụ này giúp quá trình phát triển, build và bảo trì ứng dụng diễn ra hiệu quả, thống nhất.
