@@ -22,5 +22,6 @@ class UserSeeder extends Seeder
             'password' => bcrypt('123456'),
             'role' => 'client', // dùng 'client'
         ]);
+        User::factory()->count(20)->create();
     }
 }

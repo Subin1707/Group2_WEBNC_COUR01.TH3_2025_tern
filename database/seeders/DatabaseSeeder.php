@@ -8,6 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        
         // 👤 Tạo user mẫu
         $this->call(UserSeeder::class);
 
