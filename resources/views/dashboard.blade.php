@@ -5,13 +5,11 @@
 @section('content')
 <div class="container mx-auto py-10 text-gray-200">
 
-    <!-- Tiêu đề -->
     <div class="text-center mb-10">
         <h1 class="text-4xl font-bold text-yellow-400 mb-2">📊 Bảng điều khiển</h1>
         <p class="text-gray-300">Chào mừng, <span class="font-semibold">{{ $user->name }}</span>!</p>
     </div>
 
-    <!-- Thông tin người dùng -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         <div class="bg-white/10 p-6 rounded-2xl shadow-md">
             <h2 class="text-xl font-semibold mb-2">Thông tin người dùng</h2>
@@ -31,7 +29,6 @@
         @endunless
     </div>
 
-    <!-- 🔥 Thống kê cho Admin -->
     @if($user->role === 'admin')
     <section id="spec" >
         <div class="container-xl">
@@ -72,7 +69,6 @@
     </section>
     @endif
 
-    <!-- Lời chào -->
     <div class="mt-10 text-center">
         <p class="text-gray-400">Bạn đã đăng nhập thành công 🎉</p>
     </div>

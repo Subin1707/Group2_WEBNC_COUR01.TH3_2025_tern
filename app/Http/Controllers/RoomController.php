@@ -9,21 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class RoomController extends Controller
 {
-    /**
-     * 📋 Hiển thị danh sách phòng chiếu
-     */
     public function index()
     {
         $rooms = Room::with('theater')->latest()->paginate(10);
-        $user = Auth::user(); // lấy thông tin user để phân quyền trong view
-
+        $user = Auth::user(); 
         
         return view('rooms.index', compact('rooms', 'user'));
     }
 
-    /**
-     * ➕ Form thêm phòng chiếu mới (Admin only)
-     */
     public function create()
     {
         $this->authorizeAdmin();
@@ -32,9 +25,6 @@ class RoomController extends Controller
         return view('rooms.create', compact('theaters'));
     }
 
-    /**
-     * 💾 Lưu phòng chiếu mới (Admin only)
-     */
     public function store(Request $request)
     {
         $this->authorizeAdmin();
@@ -50,17 +40,11 @@ class RoomController extends Controller
         return redirect()->route('admin.rooms.index')->with('success', '🎬 Thêm phòng chiếu thành công!');
     }
 
-    /**
-     * 👁️ Xem chi tiết phòng chiếu
-     */
     public function show(Room $room)
     {
         return view('rooms.show', compact('room'));
     }
 
-    /**
-     * ✏️ Form chỉnh sửa phòng chiếu (Admin only)
-     */
     public function edit(Room $room)
     {
         $this->authorizeAdmin();
@@ -68,9 +52,6 @@ class RoomController extends Controller
         return view('rooms.edit', compact('room', 'theaters'));
     }
 
-    /**
-     * 🔄 Cập nhật phòng chiếu (Admin only)
-     */
     public function update(Request $request, Room $room)
     {
         $this->authorizeAdmin();
@@ -86,9 +67,6 @@ class RoomController extends Controller
         return redirect()->route('admin.rooms.index')->with('success', '✅ Cập nhật thành công!');
     }
 
-    /**
-     * 🗑️ Xóa phòng chiếu (Admin only)
-     */
     public function destroy(Room $room)
     {
         $this->authorizeAdmin();
@@ -97,9 +75,6 @@ class RoomController extends Controller
         return redirect()->route('admin.rooms.index')->with('success', '🗑️ Xóa thành công!');
     }
 
-    /**
-     * 🛡️ Kiểm tra quyền admin
-     */
     private function authorizeAdmin()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
