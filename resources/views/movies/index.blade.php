@@ -40,7 +40,6 @@
                             <div class="trend_2im1 clearfix">
                                 <div class="grid">
                                     <figure class="effect-jazz mb-0">
-                                        {{-- Nếu có ảnh phim --}}
                                         @if($movie->poster)
                                             <a href="{{ route('movies.show', $movie->id) }}">
                                                 <img src="{{ asset($movie->poster) }}" 

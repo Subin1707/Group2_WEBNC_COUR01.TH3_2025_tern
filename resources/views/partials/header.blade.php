@@ -63,10 +63,8 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto">
 
-                    {{-- ✅ Đăng nhập rồi --}}
                     @auth
                         @if (Auth::user()->role === 'admin')
-                            {{-- 👑 ADMIN --}}
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.movies.index') }}">Phim</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.theaters.index') }}">Rạp</a></li>
@@ -75,16 +73,13 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.bookings.index') }}">Đặt vé</a></li>
 
                         @else
-                            {{-- 🎟️ KHÁCH HÀNG --}}
                             <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('showtimes.index') }}">Suất chiếu</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('theaters.index') }}">Rạp</a></li>
-                            {{-- ⚙️ Sửa route name cho đúng --}}
                             <li class="nav-item"><a class="nav-link" href="{{ route('bookings.index') }}">Đặt vé</a></li>
                         @endif
 
-                        {{-- 🔒 Đăng xuất --}}
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
@@ -93,7 +88,6 @@
                         </li>
                     @endauth
 
-                    {{-- ❌ Chưa đăng nhập --}}
                     @guest
                         <li class="nav-item"><a class="nav-link" href="{{ '/' }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('movies.index') }}">Phim</a></li>

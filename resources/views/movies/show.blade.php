@@ -20,7 +20,6 @@
             </div>
         </div>
 
-        {{-- BÊN PHẢI: Thông tin chi tiết --}}
         <div class="col-md-7">
             <h1 class="fw-bold mb-3">{{ $movie->title }}</h1>
 
@@ -59,7 +58,6 @@
         </div>
     </div>
 
-    {{-- ================= COMMENTS ================= --}}
     <div class="blog_1l3 mt-5">
         <h3>Bình luận gần đây ({{ $comments->total() ?? 0 }})</h3>
     </div>
@@ -81,13 +79,11 @@
             <p> Chưa có bình luận nào.</p>
         @endforelse
 
-        {{-- Phân trang --}}
         <div class="mt-3">
             {{ $comments->links() }}
         </div>
     </div>
 
-    {{-- FORM COMMENT --}}
     <div class="mt-5">
         <h3>Để lại bình luận</h3>
 

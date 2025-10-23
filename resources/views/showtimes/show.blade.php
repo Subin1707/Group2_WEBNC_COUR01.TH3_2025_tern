@@ -4,7 +4,6 @@
 <div class="container">
     <h1 class="mb-4">🎬 Chi tiết suất chiếu: {{ $showtime->movie->title ?? 'N/A' }}</h1>
 
-    {{-- Thông tin suất chiếu --}}
     <ul class="list-group mb-3">
         <li class="list-group-item"><strong>ID:</strong> {{ $showtime->id }}</li>
         <li class="list-group-item"><strong>Phòng chiếu:</strong> {{ $showtime->room->name ?? 'N/A' }}</li>
@@ -12,7 +11,6 @@
         <li class="list-group-item"><strong>Giá vé:</strong> {{ number_format($showtime->price, 0, ',', '.') }} VNĐ</li>
     </ul>
 
-    {{-- Nút quay lại khác nhau giữa admin và client --}}
     @auth
         @if(Auth::user()->role === 'admin')
             <a href="{{ route('admin.showtimes.index') }}" class="btn btn-secondary">⬅️ Quay lại</a>

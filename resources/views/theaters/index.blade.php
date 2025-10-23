@@ -27,7 +27,6 @@
                 <br>
     </div>
 
-    {{-- Hiển thị nút thêm chỉ khi là admin --}}
     @auth
         @if(auth()->user()->role === 'admin')
             <a href="{{ route('admin.theaters.create') }}" class="btn btn-primary mb-3">➕ Thêm rạp mới</a>
@@ -52,7 +51,6 @@
                     <td>
                         <a href="{{ route('theaters.show', $theater) }}" class="btn btn-info btn-sm">👁️</a>
 
-                        {{-- Chỉ admin mới thấy nút sửa / xóa --}}
                         @if(auth()->check() && auth()->user()->role === 'admin')
                             <a href="{{ route('admin.theaters.edit', $theater) }}" class="btn btn-warning btn-sm">✏️</a>
                             <form action="{{ route('admin.theaters.destroy', $theater) }}" method="POST" style="display:inline;">

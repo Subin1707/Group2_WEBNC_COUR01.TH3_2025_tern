@@ -38,7 +38,6 @@
             </div>
         </div>
 
-        {{-- Phần nội dung chính bên phải --}}
         <div class="col-md-8">
             <div class="card shadow-sm" style="background: rgb(33 37 41)">
                 <div class="card-header bg_red text-white">

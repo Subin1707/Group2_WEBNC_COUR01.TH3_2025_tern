@@ -5,12 +5,10 @@
     <h1 class="mb-4">💺 Danh sách phòng chiếu</h1>
 
     
-    {{-- ✅ Thông báo thành công --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- ✅ Nút thêm phòng (chỉ admin) --}}
     @auth
         @if(Auth::user()->role === 'admin')
             <a href="{{ route('admin.rooms.create') }}" class="btn btn-primary mb-3">
@@ -19,7 +17,6 @@
         @endif
     @endauth
 
-    {{-- ✅ Bảng danh sách phòng --}}
     <table class="table table-striped table-bordered align-middle shadow-sm">
         <thead class="table-dark">
             <tr>
@@ -36,12 +33,10 @@
                     <td>{{ $room->theater->name ?? 'Không có' }}</td>
                     <td>{{ $room->capacity ?? $room->seats_count ?? 'N/A' }}</td>
                     <td>
-                        {{-- 👁 Nút xem (mọi người đều thấy) --}}
                         <a href="{{ route('admin.rooms.show', $room) }}" class="btn btn-info btn-sm">
                             👁 Xem
                         </a>
 
-                        {{-- ✏️ Sửa & 🗑 Xóa (chỉ admin) --}}
                         @auth
                             @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-warning btn-sm">

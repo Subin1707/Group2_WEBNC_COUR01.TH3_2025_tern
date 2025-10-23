@@ -1,5 +1,4 @@
 @php
-    // Nếu không truyền $room thì mặc định null (dùng cho create)
     $room ??= null;
 @endphp
 

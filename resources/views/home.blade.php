@@ -6,7 +6,6 @@
 
 <section id="home_intro" class="pt-4 pb-5 bg_grey" style="background-color: #0b0b0b;">
     <div class="container text-light">
-        {{-- Tiêu đề chính --}}
         <div class="row mb-4">
             <div class="col-md-12 text-center">
                 <div class="trend_11">
@@ -23,9 +22,7 @@
             </div>
         </div>
 
-        {{-- 3 khối chính --}}
         <div class="row text-center popular_1 mt-4">
-            {{-- Phim đang chiếu --}}
             <div class="col-md-4 mb-4">
                 <div class="p-4 bg-black rounded-4 border border-danger shadow-lg h-100 hover-shadow">
                     <h3 class="text-danger mb-3">

@@ -1,7 +1,6 @@
 <section id="footer" class="bg-black text-white pt-5">
     <div class="container">
         <div class="row">
-            <!-- 🏢 Giới thiệu -->
             <div class="col-md-4 mb-4">
                 <h3>
                     <a class="text-white text-decoration-none" href="{{ url('/') }}">
@@ -23,7 +22,6 @@
 
 @push('scripts')
 <script>
-    // 🧭 Sticky navbar (nếu có phần header có id="navbar_sticky")
     window.addEventListener('scroll', function () {
         const navbar = document.getElementById('navbar_sticky');
         if (!navbar) return;

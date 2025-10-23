@@ -8,11 +8,9 @@
         @csrf
         @method('PUT')
 
-        {{-- Gọi form dùng chung --}}
         @include('rooms._form', ['room' => $room, 'theaters' => $theaters])
     </form>
 
-    {{-- Nút quay lại --}}
     <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary mt-3">⬅️ Quay lại</a>
 </div>
 @endsection

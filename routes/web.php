@@ -12,21 +12,11 @@ use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
-/*
-|--------------------------------------------------------------------------
-| 🌍 WEB ROUTES
-|--------------------------------------------------------------------------
-| Cấu trúc chia 2 phần rõ ràng:
-| - Client: xem phim, đặt vé, lịch sử
-| - Admin: CRUD quản trị
-*/
 
-// 🏠 Trang chủ
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// 👤 Hồ sơ người dùng (cần đăng nhập)
 Route::middleware(['auth'])->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/revenue', [DashboardController::class, 'revenueChart'])->name('dashboard.revenue');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -35,38 +25,30 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-/* ============================================================
-| 🧑‍🤝‍🧑 CLIENT – chỉ xem hoặc đặt vé
-============================================================ */
-// Phim
+
 Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
 Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.show');
 
-// Rạp
 Route::get('/theaters', [TheaterController::class, 'index'])->name('theaters.index');
 Route::get('/theaters/{theater}', [TheaterController::class, 'show'])->name('theaters.show');
 
-// Suất chiếu
 Route::get('/showtimes', [ShowtimeController::class, 'index'])->name('showtimes.index');
 Route::get('/showtimes/{showtime}', [ShowtimeController::class, 'show'])->name('showtimes.show');
 
-// Booking (Client)
 Route::middleware(['auth'])->group(function () {
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])->name('bookings.choose');
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index'); // chỉ booking của chính user
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index'); 
     Route::get('/bookings/history', [BookingController::class, 'history'])->name('bookings.history');
-    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show'); // chỉ xem booking của chính user
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show'); 
     Route::middleware(['auth'])->group(function () {
         Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
             ->name('movies.comments.store');
 });
 });
 
-/* ============================================================
-| 👑 ADMIN – middleware kiểm tra quyền riêng
-============================================================ */
+
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -81,12 +63,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('comments', CommentController::class)->only(['index', 'destroy']);
     });
 
-/* ============================================================
-| 🧾 Trang tĩnh / Auth
-============================================================ */
 
-// Giới thiệu
 Route::view('/about', 'about')->name('aboutme');
 
-// 🔐 Đăng nhập / đăng ký
 require __DIR__ . '/auth.php';

@@ -25,7 +25,6 @@
                 <br>
     </div>
     
-    {{-- Chỉ admin mới được thêm suất chiếu --}}
     @if(Auth::check() && Auth::user()->role === 'admin')
         <a href="{{ route('admin.showtimes.create') }}" class="btn btn-primary mb-3">➕ Thêm suất chiếu</a>
     @endif
