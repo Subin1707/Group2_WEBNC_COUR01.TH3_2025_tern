@@ -13,7 +13,6 @@ class HomeController extends Controller
     {
         $today = Carbon::today();
 
-        // Lấy top 4 phim có nhiều vé đặt nhất
         $trendingMovieIds = DB::table('movies')
             ->join('showtimes', 'movies.id', '=', 'showtimes.movie_id')
             ->join('bookings', 'showtimes.id', '=', 'bookings.showtime_id')
@@ -22,9 +21,8 @@ class HomeController extends Controller
             ->groupBy('movies.id')
             ->orderByDesc('total_tickets')
             ->limit(4)
-            ->pluck('movies.id'); // chỉ lấy id phim
+            ->pluck('movies.id'); 
 
-        // Lấy đầy đủ thông tin phim theo ID vừa thống kê
         $trendingMovies = Movie::whereIn('id', $trendingMovieIds)->get();
 
         return view('home', compact('trendingMovies'));

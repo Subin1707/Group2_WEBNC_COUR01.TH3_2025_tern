@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    // Admin: xem tất cả booking
     public function index()
     {
         if (Auth::user()->role === 'admin') {
@@ -26,16 +25,13 @@ class BookingController extends Controller
         return view('bookings.index', compact('bookings'));
     }
 
-    // Client: danh sách suất chiếu để đặt vé
     public function chooseShowtime(Request $request)
     {
         $query = Showtime::with('movie', 'room')->orderBy('start_time', 'desc');
 
-        // Lấy các tham số tìm kiếm
-        $keyword = $request->input('search');   // từ khóa tên phim hoặc phòng
-        $date = $request->input('date');        // ngày chiếu cụ thể (YYYY-MM-DD)
+        $keyword = $request->input('search');   
+        $date = $request->input('date');        
 
-        // Tìm kiếm theo tên phim hoặc tên phòng
         if (!empty($keyword)) {
             $query->where(function ($q) use ($keyword) {
                 $q->whereHas('movie', function ($sub) use ($keyword) {
@@ -46,41 +42,34 @@ class BookingController extends Controller
             });
         }
 
-        // Lọc theo ngày chiếu
         if (!empty($date)) {
             $query->whereDate('start_time', $date);
         }
 
-        // Phân trang và giữ lại tham số tìm kiếm
         $showtimes = $query->paginate(10)->appends($request->query());
 
         return view('bookings.choose', compact('showtimes'));
     }
 
 
-    // Client: form đặt vé cho suất chiếu cụ thể
     public function create(Showtime $showtime)
     {
         return view('bookings.create', compact('showtime'));
     }
 
-    // Client: lưu vé
     public function store(Request $request)
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string|max:5', // chỉ 1 ghế, ví dụ A1
+            'seats'       => 'required|string|max:5', 
         ]);
 
-        // 🕒 Lấy suất chiếu
         $showtime = Showtime::findOrFail($request->showtime_id);
 
-        // 🔍 1️⃣ Kiểm tra ngày chiếu có ở tương lai không
         if ($showtime->start_time < now()) {
             return back()->with('error', '⚠️ Suất chiếu này đã qua, bạn không thể đặt vé nữa!');
         }
 
-        // 🔍 Kiểm tra ghế đã được đặt chưa
         $exists = Booking::where('showtime_id', $request->showtime_id)
                         ->where('seats', $request->seats)
                         ->exists();
@@ -111,7 +100,6 @@ class BookingController extends Controller
         return view('bookings.history', compact('bookings'));
     }
 
-    // Chi tiết booking (Admin xem tất, Client xem của chính họ)
     public function show(Booking $booking)
     {
         if (Auth::user()->role === 'client' && $booking->user_id !== Auth::id()) {
@@ -121,7 +109,6 @@ class BookingController extends Controller
         return view('bookings.show', compact('booking'));
     }
 
-    // Admin: sửa booking
     public function edit(Booking $booking)
     {
         $this->authorizeAdmin();
@@ -130,7 +117,6 @@ class BookingController extends Controller
         return view('bookings.edit', compact('booking', 'showtimes'));
     }
 
-    // Admin: cập nhật booking
     public function update(Request $request, Booking $booking)
     {
         $this->authorizeAdmin();
@@ -148,7 +134,6 @@ class BookingController extends Controller
                          ->with('success', '✅ Cập nhật booking thành công!');
     }
 
-    // Admin: xóa booking
     public function destroy(Booking $booking)
     {
         $this->authorizeAdmin();
@@ -158,7 +143,6 @@ class BookingController extends Controller
                          ->with('success', '🗑️ Xóa booking thành công!');
     }
 
-    // Phương thức kiểm tra admin
     private function authorizeAdmin()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
