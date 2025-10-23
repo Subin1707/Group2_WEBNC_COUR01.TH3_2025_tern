@@ -13,20 +13,16 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2 mt-4">
-        {{-- Nút quay lại --}}
         <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary">
             ⬅️ Quay lại danh sách
         </a>
 
-        {{-- Chỉ admin mới thấy các nút sửa/xóa --}}
         @auth
             @if(Auth::user()->role === 'admin')
-                {{-- Nút sửa --}}
-                <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-warning">
+=                <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-warning">
                     ✏️ Sửa
                 </a>
 
-                {{-- Form xóa --}}
                 <form action="{{ route('admin.rooms.destroy', $room) }}" method="POST"
                       onsubmit="return confirm('⚠️ Bạn có chắc chắn muốn xóa phòng này không?')"
                       class="d-inline">

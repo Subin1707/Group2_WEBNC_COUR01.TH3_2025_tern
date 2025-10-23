@@ -12,7 +12,6 @@
     </div>
 </div>
 
-{{-- ⚠️ Thông báo lỗi hoặc thành công --}}
 @if (session('error'))
     <div class="alert alert-danger mt-3">
         {{ session('error') }}
@@ -25,7 +24,6 @@
     </div>
 @endif
 
-{{-- ⚠️ Hiển thị lỗi validate --}}
 @if ($errors->any())
     <div class="alert alert-danger mt-3">
         <ul class="mb-0">
@@ -41,7 +39,6 @@
     <input type="hidden" name="showtime_id" value="{{ $showtime->id }}">
     <input type="hidden" id="ticket_price" value="{{ $showtime->price ?? 0 }}">
 
-    {{-- Hàng ghế --}}
     <div class="mb-3">
         <label for="seat_row" class="form-label">Hàng ghế (A–F)</label>
         <select id="seat_row" class="form-select" required>
@@ -52,7 +49,6 @@
         </select>
     </div>
 
-    {{-- Số ghế --}}
     <div class="mb-3">
         <label for="seat_number" class="form-label">Số ghế (1–10)</label>
         <select id="seat_number" class="form-select" required>
@@ -63,14 +59,12 @@
         </select>
     </div>
 
-    {{-- Ghế đã chọn (tự động hiển thị) --}}
     <div class="mb-3">
         <label for="seat" class="form-label">Ghế đã chọn</label>
         <input type="text" id="seat" name="seats" class="form-control" 
                readonly required placeholder="Sẽ hiển thị sau khi chọn hàng và số">
     </div>
 
-    {{-- Giá vé --}}
     <div class="mb-3">
         <label for="total_price" class="form-label">Giá vé (VNĐ)</label>
         <input type="number" id="total_price" name="total_price" class="form-control" 

@@ -5,11 +5,9 @@
         <h4 class="text-center text-white">Register <span class="col_red">Form</span></h4>
         <hr class="line mb-4" style="border: 1px solid #facc15; width: 60px; margin:auto;">
 
-        <!-- Form Register -->
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <!-- Name -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-user"></span>
@@ -20,7 +18,6 @@
             </div>
             <x-input-error :messages="$errors->get('name')" class="mt-2 text-danger" />
 
-            <!-- Email -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-envelope"></span>
@@ -31,7 +28,6 @@
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
 
-            <!-- Password -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-lock"></span>
@@ -42,7 +38,6 @@
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger" />
 
-            <!-- Confirm Password -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-check"></span>
@@ -53,14 +48,12 @@
             </div>
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-danger" />
 
-            <!-- Register Button -->
             <div class="text-center mt-4">
                 <button type="submit" class="btn bg_red text-white px-4 py-2" style="border-radius:8px;">
                     <i class="fa fa-user-plus me-1"></i> Register
                 </button>
             </div>
 
-            <!-- Links -->
             <div class="text-center mt-4">
                 <h6>
                     <a class="col_red text-decoration-none" href="{{ route('login') }}">

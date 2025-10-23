@@ -5,14 +5,11 @@
         <h4 class="text-center text-white">Login <span class="col_red">Form</span></h4>
         <hr class="line mb-4" style="border: 1px solid #facc15; width: 60px; margin:auto;">
 
-        <!-- Session Status -->
         <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <!-- Form Login -->
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Email -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-user"></span>
@@ -23,7 +20,6 @@
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
 
-            <!-- Password -->
             <div class="input-group input-group-merge mt-3">
                 <div class="input-group-text bg-transparent text-white border-end-0">
                     <span class="fa fa-lock"></span>
@@ -34,20 +30,17 @@
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger" />
 
-            <!-- Remember Me -->
             <div class="form-check mt-3">
                 <input type="checkbox" class="form-check-input" id="remember_me" name="remember">
                 <label class="form-check-label" for="remember_me">Remember Me</label>
             </div>
 
-            <!-- Login Button -->
             <div class="text-center mt-4">
                 <button type="submit" class="btn bg_red text-white px-4 py-2" style="border-radius:8px;">
                     <i class="fa fa-long-arrow-right me-1"></i> Login
                 </button>
             </div>
 
-            <!-- Links -->
             <div class="text-center mt-4">
                 <h6>
                     <a class="col_red text-decoration-none" href="{{ route('register') }}">
