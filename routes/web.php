@@ -12,6 +12,7 @@ use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Admin\StaffAccountController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -58,6 +59,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('showtimes', ShowtimeController::class);
         Route::resource('bookings', BookingController::class)->except(['create', 'store']);
         Route::resource('comments', CommentController::class)->only(['index', 'destroy']);
+        Route::resource('staffs', StaffAccountController::class);
     });
 
 // ================= STAFF ROUTES (NEW) =================

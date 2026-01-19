@@ -20,14 +20,7 @@
             <h2 class="text-xl font-semibold mb-2">Thông tin người dùng</h2>
             <p>Email: {{ $user->email }}</p>
             <p>
-                Vai trò:
-                @if($user->role === 'admin')
-                    Admin
-                @elseif($user->role === 'staff')
-                    Nhân viên
-                @else
-                    Khách hàng
-                @endif
+                Vai trò: {{ $user->roleLabel() }}
             </p>
         </div>
 
