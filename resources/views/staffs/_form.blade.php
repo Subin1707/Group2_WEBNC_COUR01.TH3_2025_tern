@@ -1,44 +1,58 @@
 @csrf
 
-<div class="bg-gray-900 rounded-xl shadow-lg border border-gray-700 p-6 space-y-5">
+<div class="max-w-xl mx-auto backdrop-blur-xl bg-white/5
+            border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6">
+
+    <h2 class="text-xl font-bold text-center mb-4">
+        👤 Thông tin nhân viên
+    </h2>
 
     <div>
-        <label class="block text-sm mb-1">Tên nhân viên</label>
+        <label class="text-sm text-gray-300">Tên nhân viên</label>
         <input type="text" name="name"
                value="{{ old('name', $staff->name ?? '') }}"
-               class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring focus:ring-blue-500">
+               class="mt-1 w-full px-4 py-3 rounded-xl
+                      bg-gray-900/70 border border-gray-700
+                      focus:ring-2 focus:ring-blue-500 outline-none">
     </div>
 
     <div>
-        <label class="block text-sm mb-1">Email</label>
+        <label class="text-sm text-gray-300">Email</label>
         <input type="email" name="email"
                value="{{ old('email', $staff->email ?? '') }}"
-               class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring focus:ring-blue-500">
+               class="mt-1 w-full px-4 py-3 rounded-xl
+                      bg-gray-900/70 border border-gray-700
+                      focus:ring-2 focus:ring-blue-500 outline-none">
     </div>
 
     <div>
-        <label class="block text-sm mb-1">
-            Mật khẩu {{ isset($staff) ? '(để trống nếu không đổi)' : '' }}
+        <label class="text-sm text-gray-300">
+            Mật khẩu {{ isset($staff) ? '(không đổi thì bỏ trống)' : '' }}
         </label>
         <input type="password" name="password"
-               class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white">
+               class="mt-1 w-full px-4 py-3 rounded-xl
+                      bg-gray-900/70 border border-gray-700">
     </div>
 
     <div>
-        <label class="block text-sm mb-1">Xác nhận mật khẩu</label>
+        <label class="text-sm text-gray-300">Xác nhận mật khẩu</label>
         <input type="password" name="password_confirmation"
-               class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white">
+               class="mt-1 w-full px-4 py-3 rounded-xl
+                      bg-gray-900/70 border border-gray-700">
     </div>
 
-    <div class="flex justify-end gap-3">
+    <div class="flex justify-end gap-3 pt-4">
         <a href="{{ route('admin.staffs.index') }}"
-           class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-sm">
+           class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 transition">
             Huỷ
         </a>
+
         <button type="submit"
-                class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold">
-            💾 Lưu lại
+                class="px-6 py-2 rounded-xl font-semibold
+                       bg-gradient-to-r from-green-500 to-emerald-600
+                       hover:from-green-600 hover:to-emerald-700
+                       shadow-lg transition">
+            💾 Lưu
         </button>
     </div>
-
 </div>
