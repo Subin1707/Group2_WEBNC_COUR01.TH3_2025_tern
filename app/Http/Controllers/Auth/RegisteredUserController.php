@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user', // ✅ BẮT BUỘC: khách hàng tự đăng ký
         ]);
 
         event(new Registered($user));

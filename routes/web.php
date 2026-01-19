@@ -13,7 +13,6 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
 
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth'])->group(function () {
@@ -24,7 +23,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
 Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.show');
@@ -39,15 +37,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])->name('bookings.choose');
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index'); 
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/history', [BookingController::class, 'history'])->name('bookings.history');
-    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show'); 
-    Route::middleware(['auth'])->group(function () {
-        Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
-            ->name('movies.comments.store');
-});
-});
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
 
+    // ✔ comment vẫn yêu cầu auth, nhưng không lồng middleware nữa
+    Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
+        ->name('movies.comments.store');
+});
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
@@ -59,10 +56,29 @@ Route::middleware(['auth', 'admin'])
         Route::resource('theaters', TheaterController::class);
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
-        Route::resource('bookings', BookingController::class)->except(['create','store']); // admin không dùng route đặt vé client
+        Route::resource('bookings', BookingController::class)->except(['create', 'store']);
         Route::resource('comments', CommentController::class)->only(['index', 'destroy']);
     });
 
+// ================= STAFF ROUTES (NEW) =================
+Route::middleware(['auth', 'staff'])
+    ->prefix('staff')
+    ->name('staff.')
+    ->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+
+        Route::get('/showtimes', [ShowtimeController::class, 'index'])
+            ->name('showtimes.index');
+
+        Route::get('/bookings', [BookingController::class, 'index'])
+            ->name('bookings.index');
+
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])
+            ->name('bookings.show');
+    });
+// =====================================================
 
 Route::view('/about', 'about')->name('aboutme');
 

@@ -11,16 +11,16 @@ use App\Models\User;
 
 class DashboardController extends Controller
 {
-    // 📋 Hiển thị dashboard chung cho admin và client
-    public function index()
+    //  Hiển thị dashboard chung cho admin và client
+public function index()
 {
-    $user = Auth::user(); // Lấy user hiện tại
+    $user = Auth::user();
 
     if (!$user) {
         abort(403, 'Bạn cần đăng nhập để truy cập trang này.');
     }
 
-    // Nếu admin, lấy số liệu thống kê
+    // ================= ADMIN =================
     if ($user->role === 'admin') {
         $userCount = User::count();
         $movieCount = Movie::count();
@@ -36,7 +36,21 @@ class DashboardController extends Controller
         ));
     }
 
-    // Nếu client, lấy số liệu cá nhân
+    // ================= STAFF =================
+    if ($user->role === 'staff') {
+        $todayBookings = Booking::whereDate('created_at', today())->count();
+        $upcomingShowtimes = Showtime::where('start_time', '>', now())->count();
+        $totalTickets = Booking::count();
+
+        return view('dashboard', compact(
+            'user',
+            'todayBookings',
+            'upcomingShowtimes',
+            'totalTickets'
+        ));
+    }
+
+    // ================= USER (CLIENT) =================
     $user_bookings_count = Booking::where('user_id', $user->id)->count();
     $upcoming_showtimes_count = Showtime::where('start_time', '>', now())->count();
 
@@ -48,8 +62,12 @@ class DashboardController extends Controller
 }
 
     // Trang biểu đồ doanh thu
-    public function revenueChart()
+public function revenueChart()
 {
+    if (Auth::user()->role !== 'admin') {
+        abort(403);
+    }
+
     $monthlyRevenueData = Booking::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
         ->groupBy('month')
         ->pluck('total', 'month');
@@ -72,5 +90,4 @@ class DashboardController extends Controller
 
     return view('revenue', compact('monthlyRevenue', 'movieRevenue'));
 }
-
 }

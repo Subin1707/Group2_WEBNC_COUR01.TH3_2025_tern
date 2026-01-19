@@ -1,17 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
+
+@php
+    $user = Auth::user();
+@endphp
+
+@if($user && in_array($user->role, ['admin', 'staff']))
+
 <div class="container py-5">
-<div class="row trend_1 mb-4">
-    <div class="col-md-12">
-        <div class="trend_1l text-center">
-            <h4 class="mb-0 text-white">
-                <i class="fa fa-bar-chart align-middle col_red me-1"></i>
-                Thống kê <span class="col_red">Doanh thu</span>
-            </h4>
+    <div class="row trend_1 mb-4">
+        <div class="col-md-12">
+            <div class="trend_1l text-center">
+                <h4 class="mb-0 text-white">
+                    <i class="fa fa-bar-chart align-middle col_red me-1"></i>
+                    Thống kê <span class="col_red">Doanh thu</span>
+                </h4>
+            </div>
         </div>
     </div>
-</div>
 
     <div class="row">
         <div class="col-md-6 mb-4">
@@ -38,37 +45,59 @@
     </div>
 </div>
 
-<!-- Chart.js -->
+{{-- Chart.js --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Dữ liệu từ controller (chuyển sang JSON)
-    const monthlyLabels = @json($monthlyRevenue['labels']);
-    const monthlyData = @json($monthlyRevenue['data']);
-    const movieLabels = @json($movieRevenue['labels']);
-    const movieData = @json($movieRevenue['data']);
 
-    // Biểu đồ 1: Doanh thu theo tháng
-    new Chart(document.getElementById('monthlyRevenueChart'), {
-        type: 'pie',
-        data: {
-            labels: monthlyLabels,
-            datasets: [{
-                data: monthlyData,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-            }]
-        },
-    });
+@verbatim
+<script type="text/javascript">
+@endverbatim
+    const monthlyLabels = {!! json_encode($monthlyRevenue['labels']) !!};
+    const monthlyData   = {!! json_encode($monthlyRevenue['data']) !!};
 
-    // Biểu đồ 2: Doanh thu theo phim
-    new Chart(document.getElementById('movieRevenueChart'), {
-        type: 'doughnut',
-        data: {
-            labels: movieLabels,
-            datasets: [{
-                data: movieData,
-                backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
-            }]
-        },
-    });
+    const movieLabels = {!! json_encode($movieRevenue['labels']) !!};
+    const movieData   = {!! json_encode($movieRevenue['data']) !!};
+
+    const monthlyCanvas = document.getElementById('monthlyRevenueChart');
+    if (monthlyCanvas) {
+        new Chart(monthlyCanvas, {
+            type: 'pie',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    data: monthlyData,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56',
+                        '#4BC0C0', '#9966FF', '#FF9F40'
+                    ]
+                }]
+            }
+        });
+    }
+
+    const movieCanvas = document.getElementById('movieRevenueChart');
+    if (movieCanvas) {
+        new Chart(movieCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: movieLabels,
+                datasets: [{
+                    data: movieData,
+                    backgroundColor: [
+                        '#36A2EB', '#FF6384', '#FFCE56',
+                        '#4BC0C0', '#9966FF'
+                    ]
+                }]
+            }
+        });
+    }
+@verbatim
 </script>
+@endverbatim
+
+@else
+<div class="container py-5 text-center text-white">
+    <h4>Bạn không có quyền truy cập chức năng này</h4>
+</div>
+@endif
+
 @endsection

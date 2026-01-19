@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class StaffMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -15,7 +15,8 @@ class AdminMiddleware
             abort(403, 'Unauthorized action.');
         }
 
-        if (Auth::user()->role !== 'admin') {
+        // ✅ CHỈ CHO STAFF
+        if (Auth::user()->role !== 'staff') {
             abort(403, 'Unauthorized action.');
         }
 
