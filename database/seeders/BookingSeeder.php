@@ -41,6 +41,7 @@ class BookingSeeder extends Seeder
                     'showtime_id' => $showtime->id,
                     'seats' => implode(',', $seats), // Đảm bảo đúng tên cột
                     'total_price' => $showtime->price * count($seats),
+                    'payment_method' => collect(['cash', 'transfer'])->random(),
                     'status' => 'confirmed',
                     'created_at' => now()->subDays(rand(0, 60)), // thêm chút ngẫu nhiên
                     'updated_at' => now(),
