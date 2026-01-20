@@ -35,7 +35,7 @@ Route::view('/about', 'about')->name('aboutme');
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES
+| AUTH ROUTES (CLIENT)
 |--------------------------------------------------------------------------
 */
 
@@ -43,7 +43,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard & profile
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/revenue', [DashboardController::class, 'revenueChart'])->name('dashboard.revenue');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -52,34 +51,31 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | BOOKING FLOW (CHUẨN 2 BƯỚC)
+    | CLIENT BOOKING FLOW
     |--------------------------------------------------------------------------
     */
 
-    // 1️⃣ Chọn suất chiếu
+    // 1. Chọn suất chiếu
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])
         ->name('bookings.choose');
 
-    // 2️⃣ Chọn ghế
+    // 2. Chọn ghế
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])
         ->name('bookings.create');
 
-    // 3️⃣ Preview thanh toán (CHƯA tạo booking)
+    // 3. Preview thanh toán
     Route::post('/bookings/payment/preview', [BookingController::class, 'previewPayment'])
         ->name('bookings.payment.preview');
 
-    // 4️⃣ Thanh toán & tạo booking
+    // 4. Thanh toán & tạo booking
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
-    // 5️⃣ Xem booking
-    Route::get('/bookings', [BookingController::class, 'index'])
-        ->name('bookings.index');
-
-    Route::get('/bookings/history', [BookingController::class, 'history'])
+    // 👉 Client chỉ xem booking của mình
+    Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
-    Route::get('/bookings/{booking}', [BookingController::class, 'show'])
+    Route::get('/my-bookings/{booking}', [BookingController::class, 'show'])
         ->name('bookings.show');
 
     /*
@@ -103,14 +99,14 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('movies', MovieController::class);
         Route::resource('theaters', TheaterController::class);
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
 
-        // ❗ admin KHÔNG dùng create/store booking
+        // Admin quản lý booking (không tạo)
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
@@ -120,7 +116,7 @@ Route::middleware(['auth', 'admin'])
 
 /*
 |--------------------------------------------------------------------------
-| STAFF ROUTES
+| STAFF ROUTES (QUẢN LÝ BOOKING)
 |--------------------------------------------------------------------------
 */
 
@@ -132,14 +128,9 @@ Route::middleware(['auth', 'staff'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::get('/showtimes', [ShowtimeController::class, 'index'])
-            ->name('showtimes.index');
-
-        Route::get('/bookings', [BookingController::class, 'index'])
-            ->name('bookings.index');
-
-        Route::get('/bookings/{booking}', [BookingController::class, 'show'])
-            ->name('bookings.show');
+        // Staff xem / sửa / xóa booking
+        Route::resource('bookings', BookingController::class)
+            ->except(['create', 'store']);
     });
 
 /*

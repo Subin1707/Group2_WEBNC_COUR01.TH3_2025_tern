@@ -13,6 +13,7 @@
     </div>
 </div>
 
+{{-- THÔNG BÁO --}}
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif
@@ -83,10 +84,10 @@
             <td>
                 @php
                     $class = match($booking->status) {
-                        'pending' => 'badge bg-warning',
+                        'pending'   => 'badge bg-warning',
                         'confirmed' => 'badge bg-success',
                         'cancelled' => 'badge bg-danger',
-                        default => 'badge bg-secondary'
+                        default     => 'badge bg-secondary'
                     };
                 @endphp
                 <span class="{{ $class }}">{{ ucfirst($booking->status) }}</span>
@@ -95,14 +96,24 @@
             {{-- ADMIN + STAFF --}}
             @if(in_array(Auth::user()->role, ['admin','staff']))
             <td>
-                <a href="{{ route('bookings.show', $booking->id) }}"
-                   class="btn btn-info btn-sm">Xem</a>
+                @php
+                    // ROUTE ĐÚNG THEO ROLE
+                    if (Auth::user()->role === 'admin') {
+                        $showRoute   = route('admin.bookings.show', $booking->id);
+                        $editRoute   = route('admin.bookings.edit', $booking->id);
+                        $deleteRoute = route('admin.bookings.destroy', $booking->id);
+                    } else {
+                        $showRoute   = route('staff.bookings.show', $booking->id);
+                        $editRoute   = route('staff.bookings.edit', $booking->id);
+                        $deleteRoute = route('staff.bookings.destroy', $booking->id);
+                    }
+                @endphp
 
-                <a href="{{ route('bookings.edit', $booking->id) }}"
-                   class="btn btn-warning btn-sm">Sửa</a>
+                <a href="{{ $showRoute }}" class="btn btn-info btn-sm">Xem</a>
 
-                <form action="{{ route('bookings.destroy', $booking->id) }}"
-                      method="POST" style="display:inline-block;">
+                <a href="{{ $editRoute }}" class="btn btn-warning btn-sm">Sửa</a>
+
+                <form action="{{ $deleteRoute }}" method="POST" style="display:inline-block;">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-danger btn-sm"
