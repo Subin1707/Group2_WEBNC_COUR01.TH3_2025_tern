@@ -41,9 +41,11 @@ Route::view('/about', 'about')->name('aboutme');
 
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard & profile
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Client dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
+    // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -71,7 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
-    // 👉 Client chỉ xem booking của mình
+    // Lịch sử booking của client
     Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
@@ -99,8 +101,15 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Admin dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
+        // 👉 DOANH THU (FIX LỖI 500)
+        Route::get('/dashboard/revenue', [DashboardController::class, 'revenue'])
+            ->name('dashboard.revenue');
+
+        // Quản lý hệ thống
         Route::resource('movies', MovieController::class);
         Route::resource('theaters', TheaterController::class);
         Route::resource('rooms', RoomController::class);
@@ -110,13 +119,15 @@ Route::middleware(['auth', 'admin'])
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
-        Route::resource('comments', CommentController::class)->only(['index', 'destroy']);
+        Route::resource('comments', CommentController::class)
+            ->only(['index', 'destroy']);
+
         Route::resource('staffs', StaffAccountController::class);
     });
 
 /*
 |--------------------------------------------------------------------------
-| STAFF ROUTES (QUẢN LÝ BOOKING)
+| STAFF ROUTES
 |--------------------------------------------------------------------------
 */
 
