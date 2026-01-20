@@ -97,9 +97,10 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string|max:5',
-            'total_price' => 'required|numeric|min:0',
+            'showtime_id'     => 'required|exists:showtimes,id',
+            'seats'           => 'required|string|max:5',
+            'total_price'     => 'required|numeric|min:0',
+            'payment_method'  => 'required|in:cash,transfer',
         ]);
 
         $showtime = Showtime::findOrFail($request->showtime_id);
@@ -117,11 +118,12 @@ class BookingController extends Controller
         }
 
         Booking::create([
-            'user_id'     => Auth::id(),
-            'showtime_id' => $request->showtime_id,
-            'seats'       => $request->seats,
-            'total_price' => $request->total_price,
-            'status'      => 'pending',
+            'user_id'        => Auth::id(),
+            'showtime_id'    => $request->showtime_id,
+            'seats'          => $request->seats,
+            'total_price'    => $request->total_price,
+            'payment_method' => $request->payment_method, // ✅ QUAN TRỌNG
+            'status'         => 'pending',
         ]);
 
         return redirect()->route('bookings.history')
