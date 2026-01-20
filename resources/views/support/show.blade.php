@@ -73,7 +73,7 @@
         {{-- FORM GỬI TIN --}}
         @if ($ticket->status !== 'closed')
             <div class="card-footer">
-                <form method="POST" action="{{ route('support.reply', $ticket) }}">
+                <form method="POST" action="{{ route('support.reply.store', $ticket) }}">
                     @csrf
 
                     <textarea
