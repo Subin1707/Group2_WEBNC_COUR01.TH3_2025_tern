@@ -29,7 +29,7 @@ class SupportTicketController extends Controller
 
     public function create()
     {
-        return view('support.user.create');
+        return view('support.create');
     }
 
     public function store(Request $request)
