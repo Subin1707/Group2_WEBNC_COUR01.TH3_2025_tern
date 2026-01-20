@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\StaffAccountController;
 | PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
@@ -38,7 +37,6 @@ Route::view('/about', 'about')->name('aboutme');
 | AUTH ROUTES (CLIENT)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth'])->group(function () {
 
     // Client dashboard
@@ -53,9 +51,13 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | CLIENT BOOKING FLOW
+    | ✅ CLIENT BOOKING FLOW (FIX THIẾU ROUTE)
     |--------------------------------------------------------------------------
     */
+
+    // 👉 TRANG CHÍNH "ĐẶT VÉ"
+    Route::get('/bookings', [BookingController::class, 'index'])
+        ->name('bookings.index');
 
     // 1. Chọn suất chiếu
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])
@@ -73,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
-    // Lịch sử booking của client
+    // Lịch sử booking
     Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
@@ -85,7 +87,6 @@ Route::middleware(['auth'])->group(function () {
     | COMMENTS
     |--------------------------------------------------------------------------
     */
-
     Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
         ->name('movies.comments.store');
 });
@@ -95,27 +96,22 @@ Route::middleware(['auth'])->group(function () {
 | ADMIN ROUTES
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        // Admin dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // 👉 DOANH THU (FIX LỖI 500)
         Route::get('/dashboard/revenue', [DashboardController::class, 'revenue'])
             ->name('dashboard.revenue');
 
-        // Quản lý hệ thống
         Route::resource('movies', MovieController::class);
         Route::resource('theaters', TheaterController::class);
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
 
-        // Admin quản lý booking (không tạo)
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
@@ -130,7 +126,6 @@ Route::middleware(['auth', 'admin'])
 | STAFF ROUTES
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'staff'])
     ->prefix('staff')
     ->name('staff.')
@@ -139,7 +134,6 @@ Route::middleware(['auth', 'staff'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // Staff xem / sửa / xóa booking
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
     });
@@ -149,5 +143,4 @@ Route::middleware(['auth', 'staff'])
 | AUTH SYSTEM
 |--------------------------------------------------------------------------
 */
-
 require __DIR__ . '/auth.php';
