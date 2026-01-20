@@ -6,6 +6,7 @@ use App\Models\SupportTicket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Booking;
 
 class SupportTicketController extends Controller
 {
@@ -29,9 +30,12 @@ class SupportTicketController extends Controller
 
     public function create()
     {
-        return view('support.create');
-    }
+        $bookings = Booking::where('user_id', auth()->id())
+            ->latest()
+            ->get();
 
+        return view('support.create', compact('bookings'));
+    }
     public function store(Request $request)
     {
         $request->validate([
