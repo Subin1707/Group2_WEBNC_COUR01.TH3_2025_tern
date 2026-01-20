@@ -14,6 +14,7 @@ class Booking extends Model
         'showtime_id',
         'seats',
         'total_price',
+        'payment_method',
         'status',
     ];
 
