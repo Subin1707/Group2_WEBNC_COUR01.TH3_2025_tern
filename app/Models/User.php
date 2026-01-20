@@ -51,5 +51,21 @@ class User extends Authenticatable
             default => 'Khách hàng',
         };
     }
+    // Ticket do user tạo
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
 
+    // Ticket user được phân xử lý (staff/admin)
+    public function assignedTickets()
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to');
+    }
+
+    // Phản hồi support
+    public function supportReplies()
+    {
+        return $this->hasMany(SupportReply::class);
+    }
 }

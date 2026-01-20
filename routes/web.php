@@ -144,3 +144,91 @@ Route::middleware(['auth', 'staff'])
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOMER SUPPORT - USER
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])
+    ->prefix('support')
+    ->name('support.')
+    ->group(function () {
+
+        // Danh sách ticket của user
+        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'index'])
+            ->name('index');
+
+        // Tạo ticket
+        Route::get('/create', [\App\Http\Controllers\SupportTicketController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [\App\Http\Controllers\SupportTicketController::class, 'store'])
+            ->name('store');
+
+        // Xem chi tiết ticket
+        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'show'])
+            ->name('show');
+
+        // User reply
+        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+            ->name('reply.store');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOMER SUPPORT - STAFF
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'staff'])
+    ->prefix('staff/support')
+    ->name('staff.support.')
+    ->group(function () {
+
+        // Danh sách ticket được phân
+        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'staffIndex'])
+            ->name('index');
+
+        // Xem chi tiết
+        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'staffShow'])
+            ->name('show');
+
+        // Đổi trạng thái ticket
+        Route::patch('/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])
+            ->name('status.update');
+
+        // Reply cho user
+        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+            ->name('reply.store');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOMER SUPPORT - ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin/support')
+    ->name('admin.support.')
+    ->group(function () {
+
+        // Danh sách toàn bộ ticket
+        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'adminIndex'])
+            ->name('index');
+
+        // Xem chi tiết
+        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'adminShow'])
+            ->name('show');
+
+        // Phân ticket cho staff
+        Route::patch('/{ticket}/assign', [\App\Http\Controllers\SupportTicketController::class, 'assign'])
+            ->name('assign');
+
+        // Đổi trạng thái
+        Route::patch('/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])
+            ->name('status.update');
+
+        // Reply
+        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+            ->name('reply.store');
+    });
