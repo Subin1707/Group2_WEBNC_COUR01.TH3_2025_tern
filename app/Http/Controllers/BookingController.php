@@ -163,6 +163,18 @@ class BookingController extends Controller
 
         return $this->redirectByRole('✅ Cập nhật booking thành công!');
     }
+    /* ===================== HISTORY ===================== */
+
+    public function history()
+    {
+        $bookings = Booking::where('user_id', Auth::id())
+            ->with('showtime.movie')
+            ->latest()
+            ->paginate(10);
+
+        return view('bookings.history', compact('bookings'));
+    }
+
 
     public function destroy(Booking $booking)
     {
