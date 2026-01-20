@@ -14,13 +14,8 @@
     {{-- THÔNG TIN TICKET --}}
     <div class="card mb-3 shadow-sm">
         <div class="card-body">
-            <p class="mb-1">
-                <strong>Tiêu đề:</strong> {{ $ticket->subject }}
-            </p>
-
-            <p class="mb-1">
-                <strong>Danh mục:</strong> {{ ucfirst($ticket->category) }}
-            </p>
+            <p class="mb-1"><strong>Tiêu đề:</strong> {{ $ticket->subject }}</p>
+            <p class="mb-1"><strong>Danh mục:</strong> {{ ucfirst($ticket->category) }}</p>
 
             @if ($ticket->booking)
                 <p class="mb-1">
@@ -37,17 +32,15 @@
         </div>
     </div>
 
-    {{-- CHAT BOX --}}
+    {{-- CHAT --}}
     <div class="card shadow-sm">
         <div class="card-header bg-light fw-semibold">
             💬 Hội thoại
         </div>
 
         <div class="card-body" style="height: 400px; overflow-y: auto">
-
             @forelse ($ticket->replies as $reply)
                 <div class="mb-3">
-
                     <strong>
                         {{ $reply->user->name }}
 
@@ -56,20 +49,15 @@
                                 {{ strtoupper($reply->user->role) }}
                             </span>
                         @else
-                            <span class="badge bg-primary ms-1">
-                                BẠN
-                            </span>
+                            <span class="badge bg-primary ms-1">BẠN</span>
                         @endif
                     </strong>
 
-                    <div class="mt-1">
-                        {{ $reply->message }}
-                    </div>
+                    <div class="mt-1">{{ $reply->message }}</div>
 
                     <div class="text-muted small">
                         {{ $reply->created_at->format('d/m/Y H:i') }}
                     </div>
-
                 </div>
                 <hr>
             @empty
@@ -77,37 +65,44 @@
                     Chưa có phản hồi nào từ CSKH.
                 </p>
             @endforelse
-
         </div>
 
-        {{-- LOGIC KIỂM SOÁT FLOW --}}
+        {{-- FORM --}}
         @php
-            $hasStaffReply = $ticket->replies
-                ->filter(fn($r) => $r->user && $r->user->role !== 'user')
-                ->count() > 0;
+            $user = auth()->user();
+            $hasStaffReply = $ticket->replies->contains(
+                fn($r) => $r->user && in_array($r->user->role, ['staff', 'admin'])
+            );
+
+            // route theo role
+            $replyRoute = match($user->role) {
+                'staff' => route('staff.support.reply.store', $ticket),
+                'admin' => route('admin.support.reply.store', $ticket),
+                default => route('support.reply.store', $ticket),
+            };
         @endphp
 
-        {{-- FORM GỬI PHẢN HỒI --}}
         @if ($ticket->status === 'closed')
             <div class="card-footer text-center text-muted">
                 🔒 Ticket đã đóng
             </div>
 
-        @elseif (! $hasStaffReply)
+        {{-- USER: chưa có staff reply thì chờ --}}
+        @elseif ($user->role === 'user' && ! $hasStaffReply)
             <div class="card-footer text-center text-muted">
                 ⏳ Vui lòng chờ nhân viên CSKH phản hồi
             </div>
 
+        {{-- STAFF / ADMIN / USER đã được trả lời --}}
         @else
             <div class="card-footer">
-                <form method="POST" action="{{ route('support.reply', $ticket) }}">
+                <form method="POST" action="{{ $replyRoute }}">
                     @csrf
-
                     <textarea
                         name="message"
                         class="form-control mb-2"
                         rows="2"
-                        placeholder="Nhập phản hồi của bạn..."
+                        placeholder="Nhập phản hồi..."
                         required
                     ></textarea>
 
@@ -117,7 +112,6 @@
                 </form>
             </div>
         @endif
-
     </div>
 </div>
 @endsection
