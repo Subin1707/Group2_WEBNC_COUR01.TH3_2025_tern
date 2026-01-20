@@ -104,8 +104,8 @@
                     <div class="spec_1i p-4 bg-white/10 rounded">
                         <span class="font_60 col_red"><i class="fa fa-money"></i></span>
                         <h2>{{ number_format($revenue, 0, ',', '.') }}₫</h2>
-                        <h6>
-                            <a href="{{ route('dashboard.revenue') }}" class="text-white text-decoration-none">
+                                                    <h6>
+                            <a href="{{ route('admin.dashboard.revenue') }}" class="text-white text-decoration-none">
                                 Tổng doanh thu
                             </a>
                         </h6>
