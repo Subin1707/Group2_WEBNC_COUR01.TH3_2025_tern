@@ -13,7 +13,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\StaffAccountController;
-
+use App\Http\Controllers\SupportReplyController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -232,3 +232,7 @@ Route::middleware(['auth', 'admin'])
         Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
             ->name('reply.store');
     });
+Route::middleware(['auth'])->group(function () {
+    Route::post('/support/{ticket}/reply', [SupportReplyController::class, 'store'])
+        ->name('support.reply');
+});
