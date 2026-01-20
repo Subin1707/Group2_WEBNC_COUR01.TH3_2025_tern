@@ -20,14 +20,14 @@ class SupportReplyController extends Controller
 
         /* ================= AUTHORIZATION ================= */
 
-        // User chỉ được reply ticket của chính mình
-        if ($user->isUser() && $ticket->user_id !== $user->id) {
+        // USER: chỉ được reply ticket của chính mình
+        if ($user->role === 'user' && $ticket->user_id !== $user->id) {
             abort(403);
         }
 
-        // Staff chỉ được reply ticket được assign cho mình
+        // STAFF: chỉ reply ticket được assign cho mình (hoặc chưa assign)
         if (
-            $user->isStaff()
+            $user->role === 'staff'
             && $ticket->assigned_to !== null
             && $ticket->assigned_to !== $user->id
         ) {
@@ -43,8 +43,8 @@ class SupportReplyController extends Controller
 
         /* ================= UPDATE STATUS ================= */
 
-        // Staff / Admin trả lời → chuyển trạng thái
-        if ($user->isStaff() || $user->isAdmin()) {
+        // Staff / Admin trả lời → đổi trạng thái
+        if (in_array($user->role, ['staff', 'admin'])) {
             if (in_array($ticket->status, ['open', 'processing'])) {
                 $ticket->update([
                     'status' => 'answered',

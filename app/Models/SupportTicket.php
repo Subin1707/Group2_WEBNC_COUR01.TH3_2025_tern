@@ -19,29 +19,18 @@ class SupportTicket extends Model
         'assigned_to',
     ];
 
-    /* ================= RELATIONSHIPS ================= */
+    public function replies()
+    {
+        return $this->hasMany(SupportReply::class, 'ticket_id');
+    }
 
-    // Người tạo ticket (khách hàng)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Booking liên quan (nếu có)
     public function booking()
     {
         return $this->belongsTo(Booking::class);
-    }
-
-    // Nhân viên / admin xử lý
-    public function staff()
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
-
-    // Các phản hồi
-    public function replies()
-    {
-        return $this->hasMany(SupportReply::class, 'ticket_id');
     }
 }

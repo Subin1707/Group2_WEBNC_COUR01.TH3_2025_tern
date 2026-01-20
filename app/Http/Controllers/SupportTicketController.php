@@ -4,22 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Booking;
 
 class SupportTicketController extends Controller
 {
-    /* ================= USER ================= */
+    /* ================= USER / STAFF / ADMIN ================= */
 
+    // Danh sách ticket
     public function index()
     {
         /** @var User $user */
         $user = Auth::user();
 
+        // Admin & Staff: xem tất cả
         if (in_array($user->role, ['admin', 'staff'])) {
             $tickets = SupportTicket::latest()->paginate(10);
-        } else {
+        }
+        // User thường: chỉ xem ticket của mình
+        else {
             $tickets = SupportTicket::where('user_id', $user->id)
                 ->latest()
                 ->paginate(10);
@@ -28,14 +32,18 @@ class SupportTicketController extends Controller
         return view('support.index', compact('tickets'));
     }
 
+    // Form tạo ticket
     public function create()
     {
-        $bookings = Booking::where('user_id', auth()->id())
+        // Booking của user (để chọn nếu có)
+        $bookings = Booking::where('user_id', Auth::id())
             ->latest()
             ->get();
 
         return view('support.create', compact('bookings'));
     }
+
+    // Lưu ticket
     public function store(Request $request)
     {
         $request->validate([
@@ -54,22 +62,29 @@ class SupportTicketController extends Controller
             'status'     => 'open',
         ]);
 
+        // Reply đầu tiên
         $ticket->replies()->create([
             'user_id' => Auth::id(),
             'message' => $request->message,
         ]);
 
-        return redirect()->route('support.index')
+        return redirect()
+            ->route('support.index')
             ->with('success', '🎫 Đã gửi yêu cầu hỗ trợ');
     }
 
+    // Xem chi tiết ticket
     public function show(SupportTicket $ticket)
     {
-        if ($ticket->user_id !== Auth::id()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // User chỉ được xem ticket của mình
+        if ($user->role === 'user' && $ticket->user_id !== $user->id) {
             abort(403);
         }
 
-        return view('support.user.show', compact('ticket'));
+        return view('support.show', compact('ticket'));
     }
 
     /* ================= STAFF ================= */
@@ -85,7 +100,7 @@ class SupportTicketController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('support.staff.index', compact('tickets'));
+        return view('support.index', compact('tickets'));
     }
 
     /* ================= ADMIN ================= */
@@ -96,7 +111,7 @@ class SupportTicketController extends Controller
 
         $tickets = SupportTicket::latest()->paginate(15);
 
-        return view('support.admin.index', compact('tickets'));
+        return view('support.index', compact('tickets'));
     }
 
     /* ================= HELPERS ================= */
