@@ -2,7 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Controllers
+/*
+|--------------------------------------------------------------------------
+| Controllers
+|--------------------------------------------------------------------------
+*/
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MovieController;
@@ -14,6 +18,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\StaffAccountController;
 use App\Http\Controllers\SupportReplyController;
+use App\Http\Controllers\SupportTicketController;
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -39,7 +45,7 @@ Route::view('/about', 'about')->name('aboutme');
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Client dashboard
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
@@ -51,31 +57,24 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ✅ CLIENT BOOKING FLOW (FIX THIẾU ROUTE)
+    | BOOKING FLOW
     |--------------------------------------------------------------------------
     */
-
-    // 👉 TRANG CHÍNH "ĐẶT VÉ"
     Route::get('/bookings', [BookingController::class, 'index'])
         ->name('bookings.index');
 
-    // 1. Chọn suất chiếu
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])
         ->name('bookings.choose');
 
-    // 2. Chọn ghế
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])
         ->name('bookings.create');
 
-    // 3. Preview thanh toán
     Route::post('/bookings/payment/preview', [BookingController::class, 'previewPayment'])
         ->name('bookings.payment.preview');
 
-    // 4. Thanh toán & tạo booking
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
-    // Lịch sử booking
     Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
@@ -155,23 +154,19 @@ Route::middleware(['auth'])
     ->name('support.')
     ->group(function () {
 
-        // Danh sách ticket của user
-        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'index'])
+        Route::get('/', [SupportTicketController::class, 'index'])
             ->name('index');
 
-        // Tạo ticket
-        Route::get('/create', [\App\Http\Controllers\SupportTicketController::class, 'create'])
+        Route::get('/create', [SupportTicketController::class, 'create'])
             ->name('create');
 
-        Route::post('/', [\App\Http\Controllers\SupportTicketController::class, 'store'])
+        Route::post('/', [SupportTicketController::class, 'store'])
             ->name('store');
 
-        // Xem chi tiết ticket
-        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'show'])
+        Route::get('/{ticket}', [SupportTicketController::class, 'show'])
             ->name('show');
 
-        // User reply
-        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+        Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
             ->name('reply.store');
     });
 
@@ -185,20 +180,16 @@ Route::middleware(['auth', 'staff'])
     ->name('staff.support.')
     ->group(function () {
 
-        // Danh sách ticket được phân
-        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'staffIndex'])
+        Route::get('/', [SupportTicketController::class, 'staffIndex'])
             ->name('index');
 
-        // Xem chi tiết
-        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'staffShow'])
+        Route::get('/{ticket}', [SupportTicketController::class, 'staffShow'])
             ->name('show');
 
-        // Đổi trạng thái ticket
-        Route::patch('/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])
+        Route::patch('/{ticket}/status', [SupportTicketController::class, 'updateStatus'])
             ->name('status.update');
 
-        // Reply cho user
-        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+        Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
             ->name('reply.store');
     });
 
@@ -212,27 +203,18 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.support.')
     ->group(function () {
 
-        // Danh sách toàn bộ ticket
-        Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'adminIndex'])
+        Route::get('/', [SupportTicketController::class, 'adminIndex'])
             ->name('index');
 
-        // Xem chi tiết
-        Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'adminShow'])
+        Route::get('/{ticket}', [SupportTicketController::class, 'adminShow'])
             ->name('show');
 
-        // Phân ticket cho staff
-        Route::patch('/{ticket}/assign', [\App\Http\Controllers\SupportTicketController::class, 'assign'])
+        Route::patch('/{ticket}/assign', [SupportTicketController::class, 'assign'])
             ->name('assign');
 
-        // Đổi trạng thái
-        Route::patch('/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])
+        Route::patch('/{ticket}/status', [SupportTicketController::class, 'updateStatus'])
             ->name('status.update');
 
-        // Reply
-        Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportReplyController::class, 'store'])
+        Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
             ->name('reply.store');
     });
-Route::middleware(['auth'])->group(function () {
-    Route::post('/support/{ticket}/reply', [SupportReplyController::class, 'store'])
-        ->name('support.reply');
-});
