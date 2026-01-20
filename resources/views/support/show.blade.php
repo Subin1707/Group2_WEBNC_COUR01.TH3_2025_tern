@@ -49,7 +49,7 @@
                                 {{ strtoupper($reply->user->role) }}
                             </span>
                         @else
-                            <span class="badge bg-primary ms-1">BẠN</span>
+                            <span class="badge bg-primary ms-1">Khách hàng</span>
                         @endif
                     </strong>
 
