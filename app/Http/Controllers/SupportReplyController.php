@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SupportTicket;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +15,7 @@ class SupportReplyController extends Controller
             'message' => 'required|string',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
 
         /* ================= AUTHORIZATION ================= */
@@ -24,7 +26,8 @@ class SupportReplyController extends Controller
         }
 
         // Staff chỉ được reply ticket được assign cho mình
-        if ($user->isStaff()
+        if (
+            $user->isStaff()
             && $ticket->assigned_to !== null
             && $ticket->assigned_to !== $user->id
         ) {
@@ -40,7 +43,7 @@ class SupportReplyController extends Controller
 
         /* ================= UPDATE STATUS ================= */
 
-        // Staff / Admin trả lời → chuyển trạng thái hợp lệ
+        // Staff / Admin trả lời → chuyển trạng thái
         if ($user->isStaff() || $user->isAdmin()) {
             if (in_array($ticket->status, ['open', 'processing'])) {
                 $ticket->update([

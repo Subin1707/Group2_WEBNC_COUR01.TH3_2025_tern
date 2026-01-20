@@ -31,23 +31,22 @@ class SupportTicketController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'subject'   => 'required|string|max:255',
-            'category'  => 'required|in:booking,payment,movie,theater,other',
-            'message'   => 'required|string',
-            'booking_id'=> 'nullable|exists:bookings,id',
+            'subject'    => 'required|string|max:255',
+            'category'   => 'required|in:booking,payment,movie,theater,other',
+            'message'    => 'required|string',
+            'booking_id' => 'nullable|exists:bookings,id',
         ]);
 
-        // Tạo ticket
         $ticket = SupportTicket::create([
             'user_id'    => Auth::id(),
             'booking_id' => $request->booking_id,
             'subject'    => $request->subject,
             'category'   => $request->category,
-            'message'    => $request->message, // ✅ FIX: lưu message gốc
+            'message'    => $request->message,
             'status'     => 'open',
         ]);
 
-        // Tạo reply đầu tiên (chat)
+        // Reply đầu tiên
         $ticket->replies()->create([
             'user_id' => Auth::id(),
             'message' => $request->message,
@@ -67,7 +66,6 @@ class SupportTicketController extends Controller
 
     /* ================= STAFF ================= */
 
-    // Staff xem ticket được phân hoặc chưa phân
     public function staffIndex()
     {
         $this->authorizeStaff();
@@ -76,7 +74,7 @@ class SupportTicketController extends Controller
                 $q->where('assigned_to', Auth::id())
                   ->orWhereNull('assigned_to');
             })
-            ->orderByRaw('assigned_to IS NOT NULL')
+            ->orderByRaw('assigned_to IS NULL DESC')
             ->latest()
             ->paginate(10);
 
@@ -108,7 +106,7 @@ class SupportTicketController extends Controller
         return view('support.admin.show', compact('ticket'));
     }
 
-    // Admin phân công ticket cho staff
+    // Admin phân công ticket
     public function assign(Request $request, SupportTicket $ticket)
     {
         $this->authorizeAdmin();
@@ -119,7 +117,7 @@ class SupportTicketController extends Controller
 
         $ticket->update([
             'assigned_to' => $request->assigned_to,
-            'status'      => 'processing', // ✅ FIX enum
+            'status'      => 'processing',
         ]);
 
         return back()->with('success', '👨‍💼 Đã phân công ticket');
@@ -127,7 +125,6 @@ class SupportTicketController extends Controller
 
     /* ================= COMMON ================= */
 
-    // Cập nhật trạng thái ticket
     public function updateStatus(Request $request, SupportTicket $ticket)
     {
         $this->authorizeStaffOrAdmin();
@@ -145,30 +142,39 @@ class SupportTicketController extends Controller
 
     /* ================= HELPERS ================= */
 
-    private function authorizeUserTicket(SupportTicket $ticket)
+    private function authorizeUserTicket(SupportTicket $ticket): void
     {
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
     }
 
-    private function authorizeStaff()
+    private function authorizeStaff(): void
     {
-        if (!Auth::user()->isStaff() && !Auth::user()->isAdmin()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->isStaff() && !$user->isAdmin()) {
             abort(403);
         }
     }
 
-    private function authorizeAdmin()
+    private function authorizeAdmin(): void
     {
-        if (!Auth::user()->isAdmin()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->isAdmin()) {
             abort(403);
         }
     }
 
-    private function authorizeStaffOrAdmin()
+    private function authorizeStaffOrAdmin(): void
     {
-        if (!in_array(Auth::user()->role, ['staff', 'admin'])) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->isStaff() && !$user->isAdmin()) {
             abort(403);
         }
     }
