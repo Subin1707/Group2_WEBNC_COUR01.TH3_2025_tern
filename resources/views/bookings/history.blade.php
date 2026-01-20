@@ -85,9 +85,13 @@
 ```
 
 </table>
+
+{{ $bookings->links() }}
+
 @endif
 
-<a href="{{ route('bookings.choose') }}" class="btn btn-primary">
+<a href="{{ route('bookings.choose') }}" class="btn btn-primary mt-3">
     🎟️ Đặt vé mới
 </a>
+
 @endsection

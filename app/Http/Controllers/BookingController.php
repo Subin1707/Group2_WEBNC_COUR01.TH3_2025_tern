@@ -13,11 +13,14 @@ class BookingController extends Controller
 
     public function index()
     {
-        if (Auth::user()->role === 'admin') {
+        // ✅ ADMIN + STAFF xem toàn bộ
+        if (in_array(Auth::user()->role, ['admin', 'staff'])) {
             $bookings = Booking::with(['showtime.movie', 'user'])
                 ->latest()
                 ->paginate(10);
-        } else {
+        } 
+        // ✅ CLIENT chỉ xem của mình
+        else {
             $bookings = Booking::where('user_id', Auth::id())
                 ->with('showtime.movie')
                 ->latest()
@@ -31,7 +34,8 @@ class BookingController extends Controller
 
     public function chooseShowtime(Request $request)
     {
-        $query = Showtime::with('movie', 'room')->orderBy('start_time', 'desc');
+        $query = Showtime::with('movie', 'room')
+            ->orderBy('start_time', 'desc');
 
         if ($request->filled('search')) {
             $query->whereHas('movie', function ($q) use ($request) {
@@ -65,7 +69,7 @@ class BookingController extends Controller
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string|max:5',
+            'seats'       => 'required|string|max:255',
         ]);
 
         $showtime = Showtime::with(['movie', 'room'])->findOrFail($request->showtime_id);
@@ -74,33 +78,38 @@ class BookingController extends Controller
             return back()->with('error', '⚠️ Suất chiếu đã qua!');
         }
 
-        // Check ghế
+        $selectedSeats = array_map('trim', explode(',', $request->seats));
+
+        // 🔥 Check trùng ghế
         $exists = Booking::where('showtime_id', $showtime->id)
-            ->where('seats', $request->seats)
+            ->where(function ($q) use ($selectedSeats) {
+                foreach ($selectedSeats as $seat) {
+                    $q->orWhere('seats', 'like', "%$seat%");
+                }
+            })
             ->exists();
 
         if ($exists) {
-            return back()->with('error', '⚠️ Ghế này đã được đặt!');
+            return back()->with('error', '⚠️ Có ghế đã được đặt!');
         }
 
-        $totalPrice = $showtime->price;
+        $totalPrice = $showtime->price * count($selectedSeats);
 
         return view('bookings.payment', [
             'showtime'    => $showtime,
-            'seats'       => $request->seats,
+            'seats'       => implode(',', $selectedSeats),
             'total_price' => $totalPrice,
         ]);
     }
 
-    /* ===================== STEP 3: STORE (FINAL) ===================== */
+    /* ===================== STEP 3: STORE ===================== */
 
     public function store(Request $request)
     {
         $request->validate([
-            'showtime_id'     => 'required|exists:showtimes,id',
-            'seats'           => 'required|string|max:5',
-            'total_price'     => 'required|numeric|min:0',
-            'payment_method'  => 'required|in:cash,transfer',
+            'showtime_id'    => 'required|exists:showtimes,id',
+            'seats'          => 'required|string|max:255',
+            'payment_method' => 'required|in:cash,transfer',
         ]);
 
         $showtime = Showtime::findOrFail($request->showtime_id);
@@ -109,8 +118,14 @@ class BookingController extends Controller
             return back()->with('error', '⚠️ Suất chiếu đã qua!');
         }
 
-        $exists = Booking::where('showtime_id', $request->showtime_id)
-            ->where('seats', $request->seats)
+        $selectedSeats = array_map('trim', explode(',', $request->seats));
+
+        $exists = Booking::where('showtime_id', $showtime->id)
+            ->where(function ($q) use ($selectedSeats) {
+                foreach ($selectedSeats as $seat) {
+                    $q->orWhere('seats', 'like', "%$seat%");
+                }
+            })
             ->exists();
 
         if ($exists) {
@@ -119,10 +134,10 @@ class BookingController extends Controller
 
         Booking::create([
             'user_id'        => Auth::id(),
-            'showtime_id'    => $request->showtime_id,
-            'seats'          => $request->seats,
-            'total_price'    => $request->total_price,
-            'payment_method' => $request->payment_method, // ✅ QUAN TRỌNG
+            'showtime_id'    => $showtime->id,
+            'seats'          => implode(',', $selectedSeats),
+            'total_price'    => $showtime->price * count($selectedSeats),
+            'payment_method' => $request->payment_method,
             'status'         => 'pending',
         ]);
 
@@ -144,18 +159,24 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        if (Auth::user()->role === 'client' && $booking->user_id !== Auth::id()) {
+        // ✅ admin + staff xem mọi booking
+        if (in_array(Auth::user()->role, ['admin', 'staff'])) {
+            return view('bookings.show', compact('booking'));
+        }
+
+        // ✅ client chỉ xem của mình
+        if ($booking->user_id !== Auth::id()) {
             abort(403);
         }
 
         return view('bookings.show', compact('booking'));
     }
 
-    /* ===================== ADMIN ===================== */
+    /* ===================== ADMIN + STAFF ===================== */
 
     public function edit(Booking $booking)
     {
-        $this->authorizeAdmin();
+        $this->authorizeStaffOrAdmin();
         $showtimes = Showtime::with('movie')->get();
 
         return view('bookings.edit', compact('booking', 'showtimes'));
@@ -163,16 +184,22 @@ class BookingController extends Controller
 
     public function update(Request $request, Booking $booking)
     {
-        $this->authorizeAdmin();
+        $this->authorizeStaffOrAdmin();
 
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string',
+            'seats'       => 'required|string|max:255',
             'total_price' => 'required|numeric|min:0',
             'status'      => 'required|in:pending,confirmed,cancelled',
         ]);
 
-        $booking->update($request->all());
+        $booking->update($request->only([
+            'showtime_id',
+            'seats',
+            'total_price',
+            'status',
+            'payment_method',
+        ]));
 
         return redirect()->route('bookings.index')
             ->with('success', '✅ Cập nhật booking thành công!');
@@ -180,16 +207,18 @@ class BookingController extends Controller
 
     public function destroy(Booking $booking)
     {
-        $this->authorizeAdmin();
+        $this->authorizeStaffOrAdmin();
         $booking->delete();
 
         return redirect()->route('bookings.index')
             ->with('success', '🗑️ Xóa booking thành công!');
     }
 
-    private function authorizeAdmin()
+    /* ===================== AUTH ===================== */
+
+    private function authorizeStaffOrAdmin()
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'staff'])) {
             abort(403);
         }
     }
