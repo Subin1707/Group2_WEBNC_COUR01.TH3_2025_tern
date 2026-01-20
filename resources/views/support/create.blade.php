@@ -1,75 +1,120 @@
 @extends('layouts.app')
 
 @section('content')
-
 <div class="container">
-    <h4 class="mb-4">🆘 Tạo ticket hỗ trợ</h4>
 
-```
-<form method="POST" action="{{ route('support.store') }}">
-    @csrf
+    {{-- HEADER --}}
+    <h4 class="mb-4">
+        🆘 Gửi yêu cầu hỗ trợ
+    </h4>
 
-    {{-- Tiêu đề --}}
-    <div class="mb-3">
-        <label class="form-label">Tiêu đề</label>
-        <input type="text"
-               name="subject"
-               class="form-control"
-               value="{{ old('subject') }}"
-               required>
+    {{-- FORM --}}
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST" action="{{ route('support.store') }}">
+                @csrf
+
+                {{-- TIÊU ĐỀ --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Tiêu đề
+                    </label>
+                    <input
+                        type="text"
+                        name="subject"
+                        class="form-control @error('subject') is-invalid @enderror"
+                        placeholder="Ví dụ: Không thanh toán được vé"
+                        value="{{ old('subject') }}"
+                        required
+                    >
+                    @error('subject')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- DANH MỤC --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Danh mục
+                    </label>
+                    <select
+                        name="category"
+                        class="form-select @error('category') is-invalid @enderror"
+                        required
+                    >
+                        <option value="">-- Chọn danh mục --</option>
+                        <option value="payment" {{ old('category')=='payment'?'selected':'' }}>
+                            Thanh toán
+                        </option>
+                        <option value="booking" {{ old('category')=='booking'?'selected':'' }}>
+                            Đặt vé
+                        </option>
+                        <option value="account" {{ old('category')=='account'?'selected':'' }}>
+                            Tài khoản
+                        </option>
+                        <option value="other" {{ old('category')=='other'?'selected':'' }}>
+                            Khác
+                        </option>
+                    </select>
+                    @error('category')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- BOOKING (OPTIONAL) --}}
+                @if (isset($bookings) && $bookings->count())
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Booking liên quan (không bắt buộc)
+                        </label>
+                        <select name="booking_id" class="form-select">
+                            <option value="">-- Không chọn --</option>
+                            @foreach ($bookings as $booking)
+                                <option
+                                    value="{{ $booking->id }}"
+                                    {{ old('booking_id')==$booking->id?'selected':'' }}
+                                >
+                                    #{{ $booking->id }} –
+                                    {{ $booking->movie->title ?? 'Movie' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                {{-- NỘI DUNG --}}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Nội dung chi tiết
+                    </label>
+                    <textarea
+                        name="message"
+                        rows="4"
+                        class="form-control @error('message') is-invalid @enderror"
+                        placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."
+                        required
+                    >{{ old('message') }}</textarea>
+                    @error('message')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- SUBMIT --}}
+                <div class="d-flex justify-content-between">
+                    <a href="{{ route('support.index') }}" class="btn btn-outline-secondary">
+                        ← Quay lại
+                    </a>
+
+                    <button class="btn btn-primary">
+                        📩 Gửi yêu cầu
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
     </div>
-
-    {{-- Danh mục --}}
-    <div class="mb-3">
-        <label class="form-label">Danh mục</label>
-        <select name="category" class="form-control" required>
-            <option value="">-- Chọn danh mục --</option>
-            <option value="booking" {{ old('category')=='booking' ? 'selected' : '' }}>
-                Vé / Booking
-            </option>
-            <option value="payment" {{ old('category')=='payment' ? 'selected' : '' }}>
-                Thanh toán
-            </option>
-            <option value="movie" {{ old('category')=='movie' ? 'selected' : '' }}>
-                Phim
-            </option>
-            <option value="theater" {{ old('category')=='theater' ? 'selected' : '' }}>
-                Rạp
-            </option>
-            <option value="other" {{ old('category')=='other' ? 'selected' : '' }}>
-                Khác
-            </option>
-        </select>
-    </div>
-
-    {{-- Booking liên quan --}}
-    <div class="mb-3">
-        <label class="form-label">Booking liên quan (nếu có)</label>
-        <select name="booking_id" class="form-control">
-            <option value="">-- Không --</option>
-            @foreach($bookings as $booking)
-                <option value="{{ $booking->id }}"
-                    {{ old('booking_id') == $booking->id ? 'selected' : '' }}>
-                    #{{ $booking->id }} – {{ $booking->showtime->movie->title }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    {{-- Nội dung --}}
-    <div class="mb-3">
-        <label class="form-label">Nội dung</label>
-        <textarea name="message"
-                  rows="4"
-                  class="form-control"
-                  required>{{ old('message') }}</textarea>
-    </div>
-
-    <button class="btn btn-success">
-        📩 Gửi yêu cầu
-    </button>
-</form>
-```
 
 </div>
 @endsection

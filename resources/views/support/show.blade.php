@@ -2,6 +2,8 @@
 
 @section('content')
 <div class="container">
+
+    {{-- TIÊU ĐỀ --}}
     <h4 class="mb-3">
         💬 CSKH – Ticket #{{ $ticket->id }}
         <span class="badge bg-info">
@@ -42,14 +44,20 @@
         </div>
 
         <div class="card-body" style="height: 400px; overflow-y: auto">
+
             @forelse ($ticket->replies as $reply)
                 <div class="mb-3">
+
                     <strong>
                         {{ $reply->user->name }}
 
                         @if ($reply->user->role !== 'user')
                             <span class="badge bg-secondary ms-1">
                                 {{ strtoupper($reply->user->role) }}
+                            </span>
+                        @else
+                            <span class="badge bg-primary ms-1">
+                                BẠN
                             </span>
                         @endif
                     </strong>
@@ -61,26 +69,45 @@
                     <div class="text-muted small">
                         {{ $reply->created_at->format('d/m/Y H:i') }}
                     </div>
+
                 </div>
                 <hr>
             @empty
                 <p class="text-muted text-center mb-0">
-                    Chưa có phản hồi nào.
+                    Chưa có phản hồi nào từ CSKH.
                 </p>
             @endforelse
+
         </div>
 
-        {{-- FORM GỬI TIN --}}
-        @if ($ticket->status !== 'closed')
+        {{-- LOGIC KIỂM SOÁT FLOW --}}
+        @php
+            $hasStaffReply = $ticket->replies
+                ->filter(fn($r) => $r->user && $r->user->role !== 'user')
+                ->count() > 0;
+        @endphp
+
+        {{-- FORM GỬI PHẢN HỒI --}}
+        @if ($ticket->status === 'closed')
+            <div class="card-footer text-center text-muted">
+                🔒 Ticket đã đóng
+            </div>
+
+        @elseif (! $hasStaffReply)
+            <div class="card-footer text-center text-muted">
+                ⏳ Vui lòng chờ nhân viên CSKH phản hồi
+            </div>
+
+        @else
             <div class="card-footer">
-                <form method="POST" action="{{ route('support.reply.store', $ticket) }}">
+                <form method="POST" action="{{ route('support.reply', $ticket) }}">
                     @csrf
 
                     <textarea
                         name="message"
                         class="form-control mb-2"
                         rows="2"
-                        placeholder="Nhập tin nhắn..."
+                        placeholder="Nhập phản hồi của bạn..."
                         required
                     ></textarea>
 
@@ -89,11 +116,8 @@
                     </button>
                 </form>
             </div>
-        @else
-            <div class="card-footer text-center text-muted">
-                🔒 Ticket đã đóng
-            </div>
         @endif
+
     </div>
 </div>
 @endsection
