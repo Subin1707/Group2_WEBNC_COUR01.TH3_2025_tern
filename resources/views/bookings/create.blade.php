@@ -29,7 +29,6 @@
     </div>
 @endif
 
-{{-- STEP 1: CHỌN GHẾ → PREVIEW PAYMENT --}}
 <form action="{{ route('bookings.payment.preview') }}" method="POST" class="mt-4">
     @csrf
 
@@ -38,7 +37,7 @@
     {{-- HÀNG GHẾ --}}
     <div class="mb-3">
         <label class="form-label">Hàng ghế (A–F)</label>
-        <select id="seat_row" class="form-select" required>
+        <select id="seat_row" class="form-select">
             <option value="">-- Chọn hàng --</option>
             @foreach (range('A', 'F') as $row)
                 <option value="{{ $row }}">{{ $row }}</option>
@@ -49,7 +48,7 @@
     {{-- SỐ GHẾ --}}
     <div class="mb-3">
         <label class="form-label">Số ghế (1–10)</label>
-        <select id="seat_number" class="form-select" required>
+        <select id="seat_number" class="form-select">
             <option value="">-- Chọn số --</option>
             @foreach (range(1, 10) as $num)
                 <option value="{{ $num }}">{{ $num }}</option>
@@ -57,7 +56,7 @@
         </select>
     </div>
 
-    {{-- GHẾ TỔNG HỢP --}}
+    {{-- GHẾ ĐÃ CHỌN --}}
     <div class="mb-3">
         <label class="form-label">Ghế đã chọn</label>
         <input type="text"
@@ -66,16 +65,19 @@
                class="form-control"
                readonly
                required
-               placeholder="Vui lòng chọn hàng và số ghế">
+               placeholder="Chưa chọn ghế">
     </div>
 
-    {{-- GIÁ --}}
+    {{-- THÔNG TIN VÉ --}}
     <div class="mb-3">
-        <label class="form-label">Giá vé</label>
-        <input type="text"
-               class="form-control"
-               value="{{ number_format($showtime->price) }} ₫"
-               readonly>
+        <p>
+            🎟 <strong>Số lượng vé:</strong>
+            <span id="ticketCount">0</span>
+        </p>
+        <p class="fw-bold text-danger">
+            💰 Tổng tiền:
+            <span id="totalPrice">0</span> ₫
+        </p>
     </div>
 
     <button type="submit" class="btn btn-primary">
@@ -83,22 +85,41 @@
     </button>
 </form>
 
-{{-- SCRIPT GHÉP GHẾ --}}
+{{-- SCRIPT CHỌN NHIỀU GHẾ --}}
 <script>
     const seatRow = document.getElementById('seat_row');
     const seatNumber = document.getElementById('seat_number');
     const seatInput = document.getElementById('seat');
+    const ticketCountEl = document.getElementById('ticketCount');
+    const totalPriceEl = document.getElementById('totalPrice');
 
-    function updateSeat() {
-        if (seatRow.value && seatNumber.value) {
-            seatInput.value = seatRow.value + seatNumber.value;
-        } else {
-            seatInput.value = '';
-        }
+const pricePerTicket = Number("{{ $showtime->price }}");
+    let selectedSeats = [];
+
+    function updateDisplay() {
+        seatInput.value = selectedSeats.join(',');
+        ticketCountEl.innerText = selectedSeats.length;
+        totalPriceEl.innerText =
+            (selectedSeats.length * pricePerTicket).toLocaleString('vi-VN');
     }
 
-    seatRow.addEventListener('change', updateSeat);
-    seatNumber.addEventListener('change', updateSeat);
+    seatNumber.addEventListener('change', function () {
+        if (!seatRow.value || !seatNumber.value) return;
+
+        const seat = seatRow.value + seatNumber.value;
+
+        if (selectedSeats.includes(seat)) {
+            alert('❌ Ghế này đã được chọn');
+            seatNumber.value = '';
+            return;
+        }
+
+        selectedSeats.push(seat);
+        updateDisplay();
+
+        // reset để chọn tiếp
+        seatNumber.value = '';
+    });
 </script>
 
 @endsection
