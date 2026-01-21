@@ -56,7 +56,7 @@
         </select>
     </div>
 
-    {{-- GHẾ ĐÃ CHỌN --}}
+    {{-- GHẾ ĐÃ CHỌN (GỬI LÊN SERVER) --}}
     <div class="mb-3">
         <label class="form-label">Ghế đã chọn</label>
         <input type="text"
@@ -85,7 +85,7 @@
     </button>
 </form>
 
-{{-- SCRIPT CHỌN NHIỀU GHẾ --}}
+{{-- SCRIPT --}}
 <script>
     const seatRow = document.getElementById('seat_row');
     const seatNumber = document.getElementById('seat_number');
@@ -117,7 +117,6 @@ const pricePerTicket = Number("{{ $showtime->price }}");
         selectedSeats.push(seat);
         updateDisplay();
 
-        // reset để chọn tiếp
         seatNumber.value = '';
     });
 </script>
