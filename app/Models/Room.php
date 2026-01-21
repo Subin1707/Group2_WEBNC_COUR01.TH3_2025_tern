@@ -16,6 +16,12 @@ class Room extends Model
         'seat_cols',
     ];
 
+    // ✅ ÉP KIỂU – RẤT NÊN CÓ
+    protected $casts = [
+        'seat_rows' => 'integer',
+        'seat_cols' => 'integer',
+    ];
+
     public function theater()
     {
         return $this->belongsTo(Theater::class);

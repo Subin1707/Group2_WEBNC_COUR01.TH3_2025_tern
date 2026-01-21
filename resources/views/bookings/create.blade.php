@@ -47,8 +47,9 @@
     <div class="seat-map mb-4">
 
         @php
-            $rows = $showtime->room->seat_rows;
-            $cols = $showtime->room->seat_cols;
+            // ✅ CHỐNG NULL / 0 → LUÔN HIỆN GHẾ
+            $rows = max(1, (int) $showtime->room->seat_rows);
+            $cols = max(1, (int) $showtime->room->seat_cols);
         @endphp
 
         @for ($r = 0; $r < $rows; $r++)
@@ -66,8 +67,7 @@
                     @endphp
 
                     <div class="seat {{ $isOccupied ? 'occupied' : '' }}"
-                         data-seat="{{ $code }}"
-                         {{ $isOccupied ? 'data-disabled=true' : '' }}>
+                         data-seat="{{ $code }}">
                         {{ $c }}
                     </div>
                 @endfor
@@ -78,8 +78,7 @@
     {{-- INFO --}}
     <div class="mb-3">
         🎟 <strong>Số vé:</strong>
-        <span id="ticketCount">0</span>
-        <br>
+        <span id="ticketCount">0</span><br>
         💰 <strong>Tổng tiền:</strong>
         <span id="totalPrice">0</span> ₫
     </div>
