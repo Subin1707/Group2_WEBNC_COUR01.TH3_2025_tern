@@ -101,7 +101,7 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
 
         // ADMIN DASHBOARD (KHÁC USER)
-        Route::get('/dashboard', [DashboardController::class, 'admin'])
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
         Route::get('/dashboard/revenue', [DashboardController::class, 'revenue'])
