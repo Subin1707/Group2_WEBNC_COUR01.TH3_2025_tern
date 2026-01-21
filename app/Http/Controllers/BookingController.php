@@ -60,19 +60,33 @@ class BookingController extends Controller
         return view('bookings.create', compact('showtime'));
     }
 
-    /* ===================== PREVIEW ===================== */
+    /* ===================== PREVIEW PAYMENT (CÁCH 3) ===================== */
 
     public function previewPayment(Request $request)
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string|max:255',
+            'seat_row'    => 'required|string|in:A,B,C,D,E,F',
+            'seat_start'  => 'required|integer|min:1|max:10',
+            'quantity'    => 'required|integer|min:1|max:5',
         ]);
 
         $showtime = Showtime::with(['movie', 'room'])->findOrFail($request->showtime_id);
 
-        $selectedSeats = array_map('trim', explode(',', $request->seats));
+        /* ====== SINH GHẾ TỰ ĐỘNG ====== */
+        $selectedSeats = [];
 
+        for ($i = 0; $i < $request->quantity; $i++) {
+            $seatNumber = $request->seat_start + $i;
+
+            if ($seatNumber > 10) {
+                return back()->with('error', '⚠️ Số ghế vượt quá giới hạn của hàng!');
+            }
+
+            $selectedSeats[] = $request->seat_row . $seatNumber;
+        }
+
+        /* ====== CHECK TRÙNG GHẾ ====== */
         $exists = Booking::where('showtime_id', $showtime->id)
             ->where(function ($q) use ($selectedSeats) {
                 foreach ($selectedSeats as $seat) {
@@ -81,7 +95,7 @@ class BookingController extends Controller
             })->exists();
 
         if ($exists) {
-            return back()->with('error', '⚠️ Ghế đã được đặt!');
+            return back()->with('error', '⚠️ Một hoặc nhiều ghế đã được đặt!');
         }
 
         return view('bookings.payment', [
@@ -163,6 +177,7 @@ class BookingController extends Controller
 
         return $this->redirectByRole('✅ Cập nhật booking thành công!');
     }
+
     /* ===================== HISTORY ===================== */
 
     public function history()
@@ -174,7 +189,6 @@ class BookingController extends Controller
 
         return view('bookings.history', compact('bookings'));
     }
-
 
     public function destroy(Booking $booking)
     {
