@@ -69,7 +69,7 @@
                         {{-- ================= ADMIN ================= --}}
                         @if (Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
+                                <a class="nav-link" href="{{ route('admin.home') }}">Trang chủ</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.movies.index') }}">Phim</a>
@@ -89,11 +89,15 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.staffs.index') }}">Tạo nhân viên</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Thông tin người dùng</a>
+                            </li>
+
 
                         {{-- ================= USER / STAFF ================= --}}
                         @else
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('home') }}">Home</a>
+                                <a class="nav-link" href="{{ route('home') }}">Trang chủ</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('movies.index') }}">Phim</a>
@@ -107,6 +111,10 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('bookings.index') }}">Đặt vé</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dashboard') }}">Thông tin người dùng</a>
+                            </li>
+
                         @endif
 
                         {{-- 🔥 CHĂM SÓC KHÁCH HÀNG --}}
