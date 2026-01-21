@@ -10,19 +10,17 @@ use App\Models\User;
 
 class DashboardController extends Controller
 {
-    // Dashboard = THÔNG TIN NGƯỜI DÙNG (admin / staff / user)
     public function index()
     {
         $user = Auth::user();
 
         if (!$user) {
-            abort(403, 'Bạn cần đăng nhập để truy cập trang này.');
+            abort(403, 'Bạn cần đăng nhập.');
         }
 
-        // ================= ADMIN =================
+        /* ================= ADMIN ================= */
         if ($user->role === 'admin') {
-
-            return view('dashboard', [
+            return view('dashboard.admin', [
                 'user'        => $user,
                 'userCount'   => User::count(),
                 'movieCount'  => Movie::count(),
@@ -31,10 +29,9 @@ class DashboardController extends Controller
             ]);
         }
 
-        // ================= STAFF =================
+        /* ================= STAFF ================= */
         if ($user->role === 'staff') {
-
-            return view('dashboard', [
+            return view('dashboard.staff', [
                 'user'              => $user,
                 'todayBookings'     => Booking::whereDate('created_at', today())->count(),
                 'upcomingShowtimes' => Showtime::where('start_time', '>', now())->count(),
@@ -42,22 +39,29 @@ class DashboardController extends Controller
             ]);
         }
 
-        // ================= USER (CLIENT) =================
-        return view('dashboard', [
-            'user'                     => $user,
-            'user_bookings_count'      => Booking::where('user_id', $user->id)->count(),
-            'upcoming_showtimes_count' => Showtime::where('start_time', '>', now())->count(),
+        /* ================= USER ================= */
+        return view('dashboard.user', [
+            'user'        => $user,
+
+            // ❗ CHỈ LẤY BOOKING CỦA USER ĐANG LOGIN
+            'bookings'    => Booking::where('user_id', $user->id)
+                                ->with('showtime.movie')
+                                ->latest()
+                                ->limit(5)
+                                ->get(),
+
+            'totalBooked' => Booking::where('user_id', $user->id)->count(),
         ]);
     }
 
-    // Trang biểu đồ doanh thu (ADMIN)
+    /* ================= ADMIN - DOANH THU ================= */
     public function revenueChart()
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
-        $monthlyRevenueData = Booking::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
+        $monthlyRevenueData = Booking::selectRaw(
+                'MONTH(created_at) as month, SUM(total_price) as total'
+            )
             ->groupBy('month')
             ->pluck('total', 'month');
 
@@ -67,16 +71,9 @@ class DashboardController extends Controller
             ->groupBy('movies.title')
             ->pluck('total', 'movies.title');
 
-        $monthlyRevenue = [
-            'labels' => $monthlyRevenueData->keys()->map(fn ($m) => "Tháng $m"),
-            'data'   => $monthlyRevenueData->values(),
-        ];
-
-        $movieRevenue = [
-            'labels' => $movieRevenueData->keys(),
-            'data'   => $movieRevenueData->values(),
-        ];
-
-        return view('revenue', compact('monthlyRevenue', 'movieRevenue'));
+        return view('dashboard.revenue', compact(
+            'monthlyRevenueData',
+            'movieRevenueData'
+        ));
     }
 }

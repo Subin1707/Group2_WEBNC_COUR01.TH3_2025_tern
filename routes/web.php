@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Controllers
-|--------------------------------------------------------------------------
-*/
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MovieController;
@@ -22,7 +17,7 @@ use App\Http\Controllers\SupportTicketController;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC ROUTES (HOME)
+| PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -40,16 +35,15 @@ Route::view('/about', 'about')->name('aboutme');
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES (USER)
+| AUTH USER
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard – USER
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Profile
+    // PROFILE
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -57,19 +51,15 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | BOOKING FLOW
+    | BOOKING - USER ONLY
     |--------------------------------------------------------------------------
     */
-    Route::get('/bookings', [BookingController::class, 'index'])
-        ->name('bookings.index');
-
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])
         ->name('bookings.choose');
 
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])
         ->name('bookings.create');
 
-    // ✅ SỬA DUY NHẤT Ở ĐÂY (CÁCH 1)
     Route::post('/bookings/payment/preview',
         [BookingController::class, 'paymentPreview']
     )->name('bookings.payment.preview');
@@ -77,24 +67,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
+    // ✅ USER XEM DANH SÁCH RIÊNG
     Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
     Route::get('/my-bookings/{booking}', [BookingController::class, 'show'])
         ->name('bookings.show');
 
-    /*
-    |--------------------------------------------------------------------------
-    | COMMENTS
-    |--------------------------------------------------------------------------
-    */
+    // COMMENTS
     Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
         ->name('movies.comments.store');
 });
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES
+| ADMIN
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])
@@ -113,6 +100,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
 
+        // ✅ ADMIN XEM TẤT CẢ
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
@@ -124,7 +112,7 @@ Route::middleware(['auth', 'admin'])
 
 /*
 |--------------------------------------------------------------------------
-| STAFF ROUTES
+| STAFF
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'staff'])
@@ -139,16 +127,11 @@ Route::middleware(['auth', 'staff'])
             ->except(['create', 'store']);
     });
 
-/*
-|--------------------------------------------------------------------------
-| AUTH SYSTEM
-|--------------------------------------------------------------------------
-*/
 require __DIR__ . '/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| CUSTOMER SUPPORT - USER
+| SUPPORT
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])
@@ -156,67 +139,10 @@ Route::middleware(['auth'])
     ->name('support.')
     ->group(function () {
 
-        Route::get('/', [SupportTicketController::class, 'index'])
-            ->name('index');
-
-        Route::get('/create', [SupportTicketController::class, 'create'])
-            ->name('create');
-
-        Route::post('/', [SupportTicketController::class, 'store'])
-            ->name('store');
-
-        Route::get('/{ticket}', [SupportTicketController::class, 'show'])
-            ->name('show');
-
-        Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
-            ->name('reply.store');
-    });
-
-/*
-|--------------------------------------------------------------------------
-| CUSTOMER SUPPORT - STAFF
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'staff'])
-    ->prefix('staff/support')
-    ->name('staff.support.')
-    ->group(function () {
-
-        Route::get('/', [SupportTicketController::class, 'staffIndex'])
-            ->name('index');
-
-        Route::get('/{ticket}', [SupportTicketController::class, 'staffShow'])
-            ->name('show');
-
-        Route::patch('/{ticket}/status', [SupportTicketController::class, 'updateStatus'])
-            ->name('status.update');
-
-        Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
-            ->name('reply.store');
-    });
-
-/*
-|--------------------------------------------------------------------------
-| CUSTOMER SUPPORT - ADMIN
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'admin'])
-    ->prefix('admin/support')
-    ->name('admin.support.')
-    ->group(function () {
-
-        Route::get('/', [SupportTicketController::class, 'adminIndex'])
-            ->name('index');
-
-        Route::get('/{ticket}', [SupportTicketController::class, 'adminShow'])
-            ->name('show');
-
-        Route::patch('/{ticket}/assign', [SupportTicketController::class, 'assign'])
-            ->name('assign');
-
-        Route::patch('/{ticket}/status', [SupportTicketController::class, 'updateStatus'])
-            ->name('status.update');
-
+        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
+        Route::get('/create', [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
         Route::post('/{ticket}/reply', [SupportReplyController::class, 'store'])
             ->name('reply.store');
     });

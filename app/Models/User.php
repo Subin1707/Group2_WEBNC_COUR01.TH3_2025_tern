@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 /**
  * @method bool isAdmin()
  * @method bool isStaff()
@@ -14,24 +15,27 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /* ===================== FILLABLE ===================== */
     protected $fillable = [
         'name',
         'email',
         'password',
-        // ================= NEW CODE =================
-        'role',
-        // ============================================
+        'role', // admin | staff | user
     ];
 
+    /* ===================== HIDDEN ===================== */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /* ===================== CASTS ===================== */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /* ===================== ROLE CHECK ===================== */
 
     public function isAdmin(): bool
     {
@@ -47,6 +51,7 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
+
     public function roleLabel(): string
     {
         return match ($this->role) {
@@ -55,6 +60,15 @@ class User extends Authenticatable
             default => 'Khách hàng',
         };
     }
+
+    /* ===================== RELATIONSHIPS ===================== */
+
+    // ✅ Booking của user (QUAN TRỌNG để mỗi user có danh sách riêng)
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     // Ticket do user tạo
     public function supportTickets()
     {
