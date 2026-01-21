@@ -22,7 +22,7 @@ use App\Http\Controllers\SupportTicketController;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC ROUTES
+| PUBLIC ROUTES (HOME)
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -40,12 +40,12 @@ Route::view('/about', 'about')->name('aboutme');
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES (CLIENT)
+| AUTH ROUTES (USER)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard
+    // Dashboard – THÔNG TIN NGƯỜI DÙNG
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
@@ -100,7 +100,8 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', [DashboardController::class, 'index'])
+        // ADMIN DASHBOARD (KHÁC USER)
+        Route::get('/dashboard', [DashboardController::class, 'admin'])
             ->name('dashboard');
 
         Route::get('/dashboard/revenue', [DashboardController::class, 'revenue'])
@@ -130,7 +131,7 @@ Route::middleware(['auth', 'staff'])
     ->name('staff.')
     ->group(function () {
 
-        Route::get('/dashboard', [DashboardController::class, 'index'])
+        Route::get('/dashboard', [DashboardController::class, 'staff'])
             ->name('dashboard');
 
         Route::resource('bookings', BookingController::class)

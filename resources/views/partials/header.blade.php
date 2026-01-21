@@ -33,7 +33,7 @@
                         <li><a href="#"><i class="fa fa-youtube"></i></a></li>
                         <li>
                             @auth
-                                <a href="{{ route('profile.index') }}">
+                                <a href="{{ route('dashboard') }}">
                                     <i class="fa fa-user"></i>
                                 </a>
                             @else
@@ -69,7 +69,7 @@
                         {{-- ================= ADMIN ================= --}}
                         @if (Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.home') }}">Trang chủ</a>
+                                <a class="nav-link" href="{{ route('home') }}">Trang chủ</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.movies.index') }}">Phim</a>
@@ -87,12 +87,13 @@
                                 <a class="nav-link" href="{{ route('admin.bookings.index') }}">Đặt vé</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.staffs.index') }}">Tạo nhân viên</a>
+                                <a class="nav-link" href="{{ route('admin.staffs.index') }}">Nhân viên</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Thông tin người dùng</a>
+                                <a class="nav-link" href="{{ route('dashboard') }}">
+                                    Thông tin người dùng
+                                </a>
                             </li>
-
 
                         {{-- ================= USER / STAFF ================= --}}
                         @else
@@ -112,25 +113,25 @@
                                 <a class="nav-link" href="{{ route('bookings.index') }}">Đặt vé</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('dashboard') }}">Thông tin người dùng</a>
+                                <a class="nav-link" href="{{ route('dashboard') }}">
+                                    Thông tin người dùng
+                                </a>
                             </li>
-
                         @endif
 
-                        {{-- 🔥 CHĂM SÓC KHÁCH HÀNG --}}
+                        {{-- CSKH --}}
                         <li class="nav-item">
                             <a class="nav-link text-warning fw-semibold"
                                href="{{ route('support.index') }}">
-                                🆘 CSKH
+                                🆘 Chăm sóc khách hàng
                             </a>
                         </li>
 
                         {{-- LOGOUT --}}
                         <li class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit"
-                                        class="btn btn-link nav-link text-white">
+                                <button type="submit" class="btn btn-link nav-link text-white">
                                     🚪 Đăng xuất
                                 </button>
                             </form>
@@ -140,7 +141,7 @@
                     {{-- ================= GUEST ================= --}}
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ '/' }}">Dashboard</a>
+                            <a class="nav-link" href="{{ route('home') }}">Trang chủ</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('movies.index') }}">Phim</a>
