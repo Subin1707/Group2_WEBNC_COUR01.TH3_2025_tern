@@ -3,7 +3,8 @@
 @section('content')
 
 @php
-    $seatArray = explode(',', $seats);
+    // ✅ $seats LÀ ARRAY
+    $seatArray = $seats;
     $seatCount = count($seatArray);
     $totalPrice = $showtime->price * $seatCount;
 @endphp
@@ -37,7 +38,8 @@
             </li>
 
             <li class="list-group-item">
-                <strong>Ghế:</strong> {{ $seats }}
+                <strong>Ghế:</strong>
+                {{ implode(', ', $seatArray) }}
             </li>
 
             <li class="list-group-item">
@@ -61,7 +63,7 @@
     @csrf
 
     <input type="hidden" name="showtime_id" value="{{ $showtime->id }}">
-    <input type="hidden" name="seats" value="{{ $seats }}">
+    <input type="hidden" name="seats" value="{{ implode(',', $seatArray) }}">
     <input type="hidden" name="total_price" value="{{ $totalPrice }}">
 
     {{-- 💳 PHƯƠNG THỨC THANH TOÁN --}}
@@ -95,8 +97,8 @@
     </div>
 
     <div class="d-flex justify-content-between">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">
-            ← Quay lại
+        <a href="{{ route('bookings.create', $showtime->id) }}" class="btn btn-secondary">
+            ← Quay lại chọn ghế
         </a>
 
         <button type="submit" class="btn btn-success">

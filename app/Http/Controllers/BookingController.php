@@ -73,7 +73,7 @@ class BookingController extends Controller
 
     /* ===================== PAYMENT PREVIEW ===================== */
 
-    public function paymentPreview(Request $request)
+    public function previewPayment(Request $request)
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
@@ -85,9 +85,9 @@ class BookingController extends Controller
 
         $seats = array_map('trim', explode(',', $request->seats));
 
-        return view('bookings.payment-preview', [
+        return view('bookings.payment', [
             'showtime' => $showtime,
-            'seats'    => implode(', ', $seats),
+            'seats'    => $seats,
             'quantity' => count($seats),
             'total'    => count($seats) * $showtime->price,
         ]);
