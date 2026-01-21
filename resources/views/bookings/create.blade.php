@@ -40,134 +40,175 @@
     <input type="hidden" name="showtime_id" value="{{ $showtime->id }}">
     <input type="hidden" name="seats" id="seats">
 
-    {{-- SCREEN --}}
-    <div class="text-center fw-bold mb-2">MÀN HÌNH</div>
+    {{-- WRAPPER --}}
+    <div class="seat-wrapper">
 
-    {{-- SEAT MAP --}}
-    <div class="seat-map mb-4">
+        {{-- SCREEN --}}
+        <div class="screen">MÀN HÌNH</div>
 
-        @php
-            // ✅ CHỐNG NULL / 0 → LUÔN HIỆN GHẾ
-            $rows = max(1, (int) $showtime->room->seat_rows);
-            $cols = max(1, (int) $showtime->room->seat_cols);
-        @endphp
+        {{-- SEAT MAP --}}
+        <div class="seat-map mb-4">
 
-        @for ($r = 0; $r < $rows; $r++)
             @php
-                $rowLabel = chr(65 + $r); // A, B, C...
+                $rows = max(1, (int) $showtime->room->seat_rows);
+                $cols = max(1, (int) $showtime->room->seat_cols);
             @endphp
 
-            <div class="seat-row">
-                <span class="row-label">{{ $rowLabel }}</span>
+            @for ($r = 0; $r < $rows; $r++)
+                @php $rowLabel = chr(65 + $r); @endphp
 
-                @for ($c = 1; $c <= $cols; $c++)
-                    @php
-                        $code = $rowLabel . $c;
-                        $isOccupied = in_array($code, $occupiedSeats ?? []);
-                    @endphp
+                <div class="seat-row">
+                    <span class="row-label">{{ $rowLabel }}</span>
 
-                    <div class="seat {{ $isOccupied ? 'occupied' : '' }}"
-                         data-seat="{{ $code }}">
-                        {{ $c }}
-                    </div>
-                @endfor
-            </div>
-        @endfor
+                    @for ($c = 1; $c <= $cols; $c++)
+                        @php
+                            $code = $rowLabel . $c;
+                            $isOccupied = in_array($code, $occupiedSeats ?? []);
+                        @endphp
+
+                        <div class="seat {{ $isOccupied ? 'occupied' : '' }}"
+                             data-seat="{{ $code }}">
+                            {{ $c }}
+                        </div>
+                    @endfor
+                </div>
+            @endfor
+
+        </div>
     </div>
 
     {{-- INFO --}}
-    <div class="mb-3">
+    <div class="mb-3 text-center">
         🎟 <strong>Số vé:</strong>
         <span id="ticketCount">0</span><br>
         💰 <strong>Tổng tiền:</strong>
         <span id="totalPrice">0</span> ₫
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        Tiếp tục thanh toán →
-    </button>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4">
+            Tiếp tục thanh toán →
+        </button>
+    </div>
 </form>
 
 {{-- STYLE --}}
 <style>
+/* ===== WRAPPER ===== */
+.seat-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ===== SCREEN ===== */
+.screen {
+    width: 60%;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    border-radius: 20px;
+    background: linear-gradient(to bottom, #eee, #bbb);
+    color: #000;
+}
+
+/* ===== SEAT MAP ===== */
 .seat-map {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
+
+/* ===== ROW ===== */
 .seat-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
+
+/* ===== ROW LABEL ===== */
 .row-label {
-    width: 28px;
+    width: 30px;
+    text-align: right;
     font-weight: bold;
+    margin-right: 6px;
 }
+
+/* ===== SEAT ===== */
 .seat {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     background: #7c4dff;
     color: #fff;
     text-align: center;
-    line-height: 34px;
-    border-radius: 6px;
+    line-height: 36px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 12px;
     user-select: none;
+    transition: all 0.2s ease;
 }
+
+/* Hover */
+.seat:not(.occupied):hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+/* Selected */
 .seat.selected {
     background: #e53935;
 }
+
+/* Occupied */
 .seat.occupied {
     background: #9e9e9e;
     cursor: not-allowed;
-    opacity: 0.6;
-}
-.seat:not(.occupied):hover {
-    opacity: 0.85;
+    opacity: 0.5;
 }
 </style>
 
 {{-- SCRIPT --}}
 <script>
-    const seats = document.querySelectorAll('.seat');
-    const seatInput = document.getElementById('seats');
-    const ticketCount = document.getElementById('ticketCount');
-    const totalPrice = document.getElementById('totalPrice');
-    const form = document.getElementById('bookingForm');
+const seats = document.querySelectorAll('.seat');
+const seatInput = document.getElementById('seats');
+const ticketCount = document.getElementById('ticketCount');
+const totalPrice = document.getElementById('totalPrice');
+const form = document.getElementById('bookingForm');
 
-    const pricePerTicket = Number(form.dataset.price);
-    let selectedSeats = [];
+const pricePerTicket = Number(form.dataset.price);
+let selectedSeats = [];
 
-    seats.forEach(seat => {
-        seat.addEventListener('click', function () {
+seats.forEach(seat => {
+    seat.addEventListener('click', function () {
 
-            if (this.classList.contains('occupied')) return;
+        if (this.classList.contains('occupied')) return;
 
-            const code = this.dataset.seat;
+        const code = this.dataset.seat;
 
-            if (selectedSeats.includes(code)) {
-                selectedSeats = selectedSeats.filter(s => s !== code);
-                this.classList.remove('selected');
-            } else {
-                selectedSeats.push(code);
-                this.classList.add('selected');
-            }
-
-            seatInput.value = selectedSeats.join(',');
-            ticketCount.innerText = selectedSeats.length;
-            totalPrice.innerText =
-                (selectedSeats.length * pricePerTicket).toLocaleString('vi-VN');
-        });
-    });
-
-    form.addEventListener('submit', function (e) {
-        if (selectedSeats.length === 0) {
-            e.preventDefault();
-            alert('⚠️ Vui lòng chọn ít nhất 1 ghế');
+        if (selectedSeats.includes(code)) {
+            selectedSeats = selectedSeats.filter(s => s !== code);
+            this.classList.remove('selected');
+        } else {
+            selectedSeats.push(code);
+            this.classList.add('selected');
         }
+
+        seatInput.value = selectedSeats.join(',');
+        ticketCount.innerText = selectedSeats.length;
+        totalPrice.innerText =
+            (selectedSeats.length * pricePerTicket).toLocaleString('vi-VN');
     });
+});
+
+form.addEventListener('submit', function (e) {
+    if (selectedSeats.length === 0) {
+        e.preventDefault();
+        alert('⚠️ Vui lòng chọn ít nhất 1 ghế');
+    }
+});
 </script>
 
 @endsection
