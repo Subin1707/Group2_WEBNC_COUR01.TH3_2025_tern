@@ -11,23 +11,45 @@ return new class extends Migration {
 
             $table->foreignId('user_id')
                   ->constrained()
-                  ->onDelete('cascade');
+                  ->cascadeOnDelete();
 
             $table->foreignId('showtime_id')
                   ->constrained()
-                  ->onDelete('cascade');
+                  ->cascadeOnDelete();
 
+            /**
+             * Ghế đã đặt
+             * Ví dụ: A1,A2,A3
+             */
             $table->string('seats');
 
-            $table->decimal('total_price', 8, 2);
+            /**
+             * Tổng tiền (VNĐ)
+             */
+            $table->unsignedInteger('total_price');
 
-            // ✅ THÊM CỘT PHƯƠNG THỨC THANH TOÁN
+            /**
+             * Phương thức thanh toán
+             */
             $table->enum('payment_method', ['cash', 'transfer'])
                   ->nullable()
                   ->comment('cash = tiền mặt, transfer = chuyển khoản');
 
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])
-                  ->default('pending');
+            /**
+             * Trạng thái booking
+             */
+            $table->enum('status', [
+                'pending',     // chưa thanh toán
+                'confirmed',   // đã thanh toán → KHÓA GHẾ
+                'cancelled'
+            ])->default('pending');
+
+            /* =========================
+             |        INDEX
+             |=========================*/
+
+            // Tối ưu query kiểm tra ghế
+            $table->index(['showtime_id', 'status']);
 
             $table->timestamps();
         });

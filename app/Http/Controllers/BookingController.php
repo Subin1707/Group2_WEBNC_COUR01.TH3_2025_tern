@@ -49,7 +49,7 @@ class BookingController extends Controller
         return view('bookings.choose', compact('showtimes'));
     }
 
-    /* ===================== CREATE ===================== */
+    /* ===================== CREATE (SEAT MAP) ===================== */
 
     public function create(Showtime $showtime)
     {
@@ -57,51 +57,39 @@ class BookingController extends Controller
             return back()->with('error', '⚠️ Suất chiếu đã qua!');
         }
 
-        return view('bookings.create', compact('showtime'));
+        // 🔒 CHỈ LẤY GHẾ ĐÃ CONFIRMED
+        $occupiedSeats = Booking::where('showtime_id', $showtime->id)
+            ->where('status', 'confirmed')
+            ->pluck('seats')
+            ->flatMap(fn ($s) => explode(',', $s))
+            ->map(fn ($s) => trim($s))
+            ->toArray();
+
+        return view('bookings.create', compact(
+            'showtime',
+            'occupiedSeats'
+        ));
     }
 
-    /* ===================== PREVIEW PAYMENT (CÁCH 3) ===================== */
+    /* ===================== PAYMENT PREVIEW ===================== */
 
-    public function previewPayment(Request $request)
+    public function paymentPreview(Request $request)
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
-            'seat_row'    => 'required|string|in:A,B,C,D,E,F',
-            'seat_start'  => 'required|integer|min:1|max:10',
-            'quantity'    => 'required|integer|min:1|max:5',
+            'seats'       => 'required|string',
         ]);
 
-        $showtime = Showtime::with(['movie', 'room'])->findOrFail($request->showtime_id);
+        $showtime = Showtime::with(['movie', 'room'])
+            ->findOrFail($request->showtime_id);
 
-        /* ====== SINH GHẾ TỰ ĐỘNG ====== */
-        $selectedSeats = [];
+        $seats = array_map('trim', explode(',', $request->seats));
 
-        for ($i = 0; $i < $request->quantity; $i++) {
-            $seatNumber = $request->seat_start + $i;
-
-            if ($seatNumber > 10) {
-                return back()->with('error', '⚠️ Số ghế vượt quá giới hạn của hàng!');
-            }
-
-            $selectedSeats[] = $request->seat_row . $seatNumber;
-        }
-
-        /* ====== CHECK TRÙNG GHẾ ====== */
-        $exists = Booking::where('showtime_id', $showtime->id)
-            ->where(function ($q) use ($selectedSeats) {
-                foreach ($selectedSeats as $seat) {
-                    $q->orWhere('seats', 'like', "%$seat%");
-                }
-            })->exists();
-
-        if ($exists) {
-            return back()->with('error', '⚠️ Một hoặc nhiều ghế đã được đặt!');
-        }
-
-        return view('bookings.payment', [
-            'showtime'    => $showtime,
-            'seats'       => implode(',', $selectedSeats),
-            'total_price' => $showtime->price * count($selectedSeats),
+        return view('bookings.payment-preview', [
+            'showtime' => $showtime,
+            'seats'    => implode(', ', $seats),
+            'quantity' => count($seats),
+            'total'    => count($seats) * $showtime->price,
         ]);
     }
 
@@ -117,6 +105,20 @@ class BookingController extends Controller
 
         $showtime = Showtime::findOrFail($request->showtime_id);
         $selectedSeats = array_map('trim', explode(',', $request->seats));
+
+        // 🔒 CHECK TRÙNG GHẾ ĐÃ CONFIRMED
+        $occupiedSeats = Booking::where('showtime_id', $showtime->id)
+            ->where('status', 'confirmed')
+            ->pluck('seats')
+            ->flatMap(fn ($s) => explode(',', $s))
+            ->map(fn ($s) => trim($s))
+            ->toArray();
+
+        foreach ($selectedSeats as $seat) {
+            if (in_array($seat, $occupiedSeats)) {
+                return back()->with('error', "⚠️ Ghế {$seat} đã được đặt!");
+            }
+        }
 
         Booking::create([
             'user_id'        => Auth::id(),
@@ -146,7 +148,7 @@ class BookingController extends Controller
         return view('bookings.show', compact('booking'));
     }
 
-    /* ===================== EDIT ===================== */
+    /* ===================== EDIT / UPDATE ===================== */
 
     public function edit(Booking $booking)
     {
@@ -189,6 +191,8 @@ class BookingController extends Controller
 
         return view('bookings.history', compact('bookings'));
     }
+
+    /* ===================== DELETE ===================== */
 
     public function destroy(Booking $booking)
     {
