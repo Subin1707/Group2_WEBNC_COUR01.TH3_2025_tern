@@ -86,7 +86,7 @@ class MovieSeeder extends Seeder
             'description' => 'Một cựu lính thủy đánh bộ được gửi đến hành tinh Pandora và bị cuốn vào cuộc xung đột giữa con người và người bản địa.',
             'genre' => 'Sci-fi',
             'duration' => 162,
-            'poster' => 'img/avatar.jpg'
+            'poster' => 'img/avatar.png'
         ]);
 
         Movie::create([
@@ -102,7 +102,7 @@ class MovieSeeder extends Seeder
             'description' => 'Cậu thám tử trung học bị teo nhỏ nhưng vẫn tiếp tục phá án.',
             'genre' => 'Animation',
             'duration' => 110,
-            'poster' => 'img/conan.jpg'
+            'poster' => 'img/connan.jpg'
         ]);
 
         Movie::create([
@@ -158,7 +158,7 @@ class MovieSeeder extends Seeder
             'description' => 'Hành trình tìm lại giá trị bản thân.',
             'genre' => 'Drama',
             'duration' => 115,
-            'poster' => 'img/bauvattroicho.jpg'
+            'poster' => 'img/bauvattroicho.png'
         ]);
 
     }
