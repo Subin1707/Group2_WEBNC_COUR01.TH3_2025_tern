@@ -81,5 +81,85 @@ class MovieSeeder extends Seeder
             'duration' => 164,
             'poster' => 'img/blade_runner_2049.jpg'
         ]);
+                Movie::create([
+            'title' => 'Avatar',
+            'description' => 'Một cựu lính thủy đánh bộ được gửi đến hành tinh Pandora và bị cuốn vào cuộc xung đột giữa con người và người bản địa.',
+            'genre' => 'Sci-fi',
+            'duration' => 162,
+            'poster' => 'img/avatar.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Doraemon: Nobita và Chuyến Phiêu Lưu',
+            'description' => 'Doraemon cùng Nobita bước vào một cuộc phiêu lưu kỳ thú.',
+            'genre' => 'Animation',
+            'duration' => 105,
+            'poster' => 'img/doramon.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Thám Tử Conan',
+            'description' => 'Cậu thám tử trung học bị teo nhỏ nhưng vẫn tiếp tục phá án.',
+            'genre' => 'Animation',
+            'duration' => 110,
+            'poster' => 'img/conan.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Tom and Jerry',
+            'description' => 'Cuộc rượt đuổi kinh điển giữa mèo Tom và chuột Jerry.',
+            'genre' => 'Animation',
+            'duration' => 90,
+            'poster' => 'img/tomandjerry.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'My Neighbor Totoro',
+            'description' => 'Câu chuyện nhẹ nhàng về tuổi thơ và thiên nhiên.',
+            'genre' => 'Animation',
+            'duration' => 86,
+            'poster' => 'img/totoro.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Mắt Biếc',
+            'description' => 'Câu chuyện tình đơn phương đầy day dứt của Ngạn dành cho Hà Lan.',
+            'genre' => 'Romance',
+            'duration' => 117,
+            'poster' => 'img/matbiec.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Muối Phở',
+            'description' => 'Bộ phim đậm chất đời sống Việt Nam.',
+            'genre' => 'Drama',
+            'duration' => 100,
+            'poster' => 'img/muipho.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Người Vợ Cuối Cùng',
+            'description' => 'Bộ phim cổ trang Việt Nam về thân phận người phụ nữ.',
+            'genre' => 'Drama',
+            'duration' => 132,
+            'poster' => 'img/nguoivocuoicung.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Kẻ Độc Hành',
+            'description' => 'Một người đàn ông chống lại thế giới ngầm.',
+            'genre' => 'Action',
+            'duration' => 125,
+            'poster' => 'img/kedochanh.jpg'
+        ]);
+
+        Movie::create([
+            'title' => 'Bầu Vật Trời Cho',
+            'description' => 'Hành trình tìm lại giá trị bản thân.',
+            'genre' => 'Drama',
+            'duration' => 115,
+            'poster' => 'img/bauvattroicho.jpg'
+        ]);
+
     }
 }
