@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Showtime;
+use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +36,29 @@ class BookingController extends Controller
 
         return view('bookings.user.history', compact('bookings'));
     }
+
+    /* ===================== CHOOSE MOVIE / SHOWTIME ===================== */
+public function chooseShowtime(Request $request)
+{
+    abort_unless(Auth::user()->role === 'client', 403);
+
+    $query = Showtime::with(['movie', 'room'])
+        ->where('start_time', '>=', now());
+
+    // 🔍 TÌM KIẾM THEO TÊN PHIM
+    if ($request->filled('search')) {
+        $query->whereHas('movie', function ($q) use ($request) {
+            $q->where('title', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    $showtimes = $query
+        ->orderBy('start_time')
+        ->paginate(10)
+        ->withQueryString(); // giữ search khi chuyển trang
+
+    return view('bookings.choose', compact('showtimes'));
+}
 
     /* ===================== CREATE (SEAT MAP) ===================== */
     public function create(Showtime $showtime)
