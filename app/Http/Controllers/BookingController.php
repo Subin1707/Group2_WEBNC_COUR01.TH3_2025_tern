@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Showtime;
-use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,37 +33,40 @@ class BookingController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('bookings.user.history', compact('bookings'));
+        return view('bookings.history', compact('bookings'));
     }
 
-    /* ===================== CHOOSE MOVIE / SHOWTIME ===================== */
-public function chooseShowtime(Request $request)
-{
-    abort_unless(Auth::user()->role === 'client', 403);
+    /* ===================== CHOOSE SHOWTIME ===================== */
+    public function chooseShowtime(Request $request)
+    {
+        // ❌ Admin & Staff không được đặt vé
+        abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
 
-    $query = Showtime::with(['movie', 'room'])
-        ->where('start_time', '>=', now());
+        $query = Showtime::with(['movie', 'room'])
+            ->where('start_time', '>=', now());
 
-    // 🔍 TÌM KIẾM THEO TÊN PHIM
-    if ($request->filled('search')) {
-        $query->whereHas('movie', function ($q) use ($request) {
-            $q->where('title', 'like', '%' . $request->search . '%');
-        });
+        // 🔍 Tìm theo tên phim
+        if ($request->filled('search')) {
+            $query->whereHas('movie', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $showtimes = $query
+            ->orderBy('start_time')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('bookings.choose', compact('showtimes'));
     }
-
-    $showtimes = $query
-        ->orderBy('start_time')
-        ->paginate(10)
-        ->withQueryString(); // giữ search khi chuyển trang
-
-    return view('bookings.choose', compact('showtimes'));
-}
 
     /* ===================== CREATE (SEAT MAP) ===================== */
     public function create(Showtime $showtime)
     {
+        abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
         abort_if($showtime->start_time < now(), 403);
 
+        // Ghế đã thanh toán
         $confirmedSeats = Booking::where('showtime_id', $showtime->id)
             ->where('status', 'confirmed')
             ->pluck('seats')
@@ -72,6 +74,7 @@ public function chooseShowtime(Request $request)
             ->map(fn ($s) => trim($s))
             ->toArray();
 
+        // Ghế pending của user khác (10 phút)
         $pendingSeats = Booking::where('showtime_id', $showtime->id)
             ->where('status', 'pending')
             ->where('user_id', '!=', Auth::id())
@@ -89,6 +92,8 @@ public function chooseShowtime(Request $request)
     /* ===================== STORE ===================== */
     public function store(Request $request)
     {
+        abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
+
         $request->validate([
             'showtime_id'    => 'required|exists:showtimes,id',
             'seats'          => 'required|string',
@@ -98,6 +103,7 @@ public function chooseShowtime(Request $request)
         $showtime = Showtime::findOrFail($request->showtime_id);
         $selectedSeats = array_map('trim', explode(',', $request->seats));
 
+        // Ghế đã bị giữ
         $lockedSeats = Booking::where('showtime_id', $showtime->id)
             ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
