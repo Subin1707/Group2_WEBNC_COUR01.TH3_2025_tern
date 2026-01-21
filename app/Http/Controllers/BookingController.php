@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -32,12 +33,13 @@ class BookingController extends Controller
     public function chooseShowtime(Request $request)
     {
         $query = Showtime::with('movie', 'room')
-            ->orderBy('start_time', 'desc');
+            ->where('start_time', '>', now())
+            ->orderBy('start_time');
 
         if ($request->filled('search')) {
-            $query->whereHas('movie', function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%');
-            });
+            $query->whereHas('movie', fn ($q) =>
+                $q->where('title', 'like', "%{$request->search}%")
+            );
         }
 
         if ($request->filled('date')) {
@@ -57,19 +59,27 @@ class BookingController extends Controller
             return back()->with('error', '⚠️ Suất chiếu đã qua!');
         }
 
-        // 🔒 KHÓA GHẾ: pending + confirmed
-        $occupiedSeats = Booking::where('showtime_id', $showtime->id)
-            ->whereIn('status', ['pending', 'confirmed'])
+        // 🔒 GHẾ ĐÃ THANH TOÁN (KHÓA VĨNH VIỄN)
+        $confirmedSeats = Booking::where('showtime_id', $showtime->id)
+            ->where('status', 'confirmed')
             ->pluck('seats')
             ->flatMap(fn ($s) => explode(',', $s))
             ->map(fn ($s) => trim($s))
-            ->unique()
             ->toArray();
 
-        return view('bookings.create', compact(
-            'showtime',
-            'occupiedSeats'
-        ));
+        // 🔒 GHẾ PENDING CỦA USER KHÁC (timeout 10 phút)
+        $pendingSeats = Booking::where('showtime_id', $showtime->id)
+            ->where('status', 'pending')
+            ->where('user_id', '!=', Auth::id())
+            ->where('created_at', '>', now()->subMinutes(10))
+            ->pluck('seats')
+            ->flatMap(fn ($s) => explode(',', $s))
+            ->map(fn ($s) => trim($s))
+            ->toArray();
+
+        $occupiedSeats = array_unique(array_merge($confirmedSeats, $pendingSeats));
+
+        return view('bookings.create', compact('showtime', 'occupiedSeats'));
     }
 
     /* ===================== PAYMENT PREVIEW ===================== */
@@ -81,9 +91,7 @@ class BookingController extends Controller
             'seats'       => 'required|string',
         ]);
 
-        $showtime = Showtime::with(['movie', 'room'])
-            ->findOrFail($request->showtime_id);
-
+        $showtime = Showtime::with(['movie', 'room'])->findOrFail($request->showtime_id);
         $seats = array_map('trim', explode(',', $request->seats));
 
         return view('bookings.payment', [
@@ -100,25 +108,24 @@ class BookingController extends Controller
     {
         $request->validate([
             'showtime_id'    => 'required|exists:showtimes,id',
-            'seats'          => 'required|string|max:255',
+            'seats'          => 'required|string',
             'payment_method' => 'required|in:cash,transfer',
         ]);
 
         $showtime = Showtime::findOrFail($request->showtime_id);
         $selectedSeats = array_map('trim', explode(',', $request->seats));
 
-        // 🔒 CHỐNG 2 NGƯỜI CHỌN CÙNG GHẾ
-        $occupiedSeats = Booking::where('showtime_id', $showtime->id)
-            ->whereIn('status', ['pending', 'confirmed'])
+        // 🔒 KIỂM TRA GHẾ ĐÃ CONFIRMED
+        $confirmedSeats = Booking::where('showtime_id', $showtime->id)
+            ->where('status', 'confirmed')
             ->pluck('seats')
             ->flatMap(fn ($s) => explode(',', $s))
             ->map(fn ($s) => trim($s))
-            ->unique()
             ->toArray();
 
         foreach ($selectedSeats as $seat) {
-            if (in_array($seat, $occupiedSeats)) {
-                return back()->with('error', "⚠️ Ghế {$seat} đã được khách khác chọn!");
+            if (in_array($seat, $confirmedSeats)) {
+                return back()->with('error', "⚠️ Ghế {$seat} đã được thanh toán!");
             }
         }
 
@@ -128,11 +135,11 @@ class BookingController extends Controller
             'seats'          => implode(',', $selectedSeats),
             'total_price'    => $showtime->price * count($selectedSeats),
             'payment_method' => $request->payment_method,
-            'status'         => 'pending', // 🔒 GIỮ GHẾ
+            'status'         => 'pending',
         ]);
 
         return redirect()->route('bookings.history')
-            ->with('success', '🎟️ Đặt vé thành công!');
+            ->with('success', '🎟️ Giữ ghế thành công! Vui lòng thanh toán trong 10 phút.');
     }
 
     /* ===================== SHOW ===================== */
@@ -143,43 +150,9 @@ class BookingController extends Controller
             return view('bookings.show', compact('booking'));
         }
 
-        if ($booking->user_id !== Auth::id()) {
-            abort(403);
-        }
+        abort_if($booking->user_id !== Auth::id(), 403);
 
         return view('bookings.show', compact('booking'));
-    }
-
-    /* ===================== EDIT / UPDATE ===================== */
-
-    public function edit(Booking $booking)
-    {
-        $this->authorizeStaffOrAdmin();
-        $showtimes = Showtime::with('movie')->get();
-
-        return view('bookings.edit', compact('booking', 'showtimes'));
-    }
-
-    public function update(Request $request, Booking $booking)
-    {
-        $this->authorizeStaffOrAdmin();
-
-        $request->validate([
-            'showtime_id' => 'required|exists:showtimes,id',
-            'seats'       => 'required|string',
-            'total_price' => 'required|numeric',
-            'status'      => 'required|in:pending,confirmed,cancelled',
-        ]);
-
-        $booking->update($request->only([
-            'showtime_id',
-            'seats',
-            'total_price',
-            'status',
-            'payment_method',
-        ]));
-
-        return $this->redirectByRole('✅ Cập nhật booking thành công!');
     }
 
     /* ===================== HISTORY ===================== */
@@ -194,23 +167,11 @@ class BookingController extends Controller
         return view('bookings.history', compact('bookings'));
     }
 
-    /* ===================== DELETE ===================== */
-
-    public function destroy(Booking $booking)
-    {
-        $this->authorizeStaffOrAdmin();
-        $booking->delete();
-
-        return $this->redirectByRole('🗑️ Xóa booking thành công!');
-    }
-
     /* ===================== HELPERS ===================== */
 
     private function authorizeStaffOrAdmin()
     {
-        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
-            abort(403);
-        }
+        abort_unless(in_array(Auth::user()->role, ['admin', 'staff']), 403);
     }
 
     private function redirectByRole($message)

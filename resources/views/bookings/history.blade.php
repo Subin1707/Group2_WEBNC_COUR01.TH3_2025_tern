@@ -37,7 +37,6 @@
         <tr>
             <td>{{ $booking->id }}</td>
 
-```
         <td>{{ $booking->showtime->movie->title ?? 'N/A' }}</td>
 
         <td>
@@ -82,7 +81,7 @@
     </tr>
     @endforeach
 </tbody>
-```
+
 
 </table>
 
