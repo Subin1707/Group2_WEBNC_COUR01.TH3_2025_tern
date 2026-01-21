@@ -73,7 +73,7 @@ class BookingController extends Controller
 
     /* ===================== PAYMENT PREVIEW ===================== */
 
-    public function previewPayment(Request $request)
+    public function paymentPreview(Request $request)
     {
         $request->validate([
             'showtime_id' => 'required|exists:showtimes,id',
