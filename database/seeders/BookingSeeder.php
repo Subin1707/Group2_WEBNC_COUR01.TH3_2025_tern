@@ -21,11 +21,11 @@ class BookingSeeder extends Seeder
 
         foreach ($users as $user) {
 
-            $sampleShowtimes = $showtimes->random(rand(1, 3));
+            $sampleShowtimes = $showtimes->random(rand(1, 2));
 
             foreach ($sampleShowtimes as $showtime) {
 
-                // ✅ Tạo danh sách ghế không trùng
+                // Danh sách ghế
                 $rows = range('A', 'F');
                 $seatPool = [];
 
@@ -37,22 +37,28 @@ class BookingSeeder extends Seeder
 
                 shuffle($seatPool);
 
-                $seatCount = rand(1, 5);
+                // Thực tế: thường 1–4 ghế
+                $seatCount = rand(1, 4);
                 $seats = array_slice($seatPool, 0, $seatCount);
 
                 Booking::create([
-                    'user_id' => $user->id,
-                    'showtime_id' => $showtime->id,
-                    'seats' => implode(',', $seats),
-                    'total_price' => $showtime->price * $seatCount,
-                    'payment_method' => collect(['cash', 'transfer'])->random(),
-                    'status' => collect(['pending', 'confirmed'])->random(),
-                    'created_at' => now()->subDays(rand(1, 60)),
-                    'updated_at' => now(),
+                    'user_id'        => $user->id,
+                    'showtime_id'    => $showtime->id,
+                    'seats'          => implode(',', $seats),
+                    'total_price'    => $showtime->price * $seatCount,
+
+                    // Chuyển khoản phổ biến hơn
+                    'payment_method' => collect(['transfer', 'transfer', 'cash'])->random(),
+
+                    // Vé đã xác nhận nhiều hơn
+                    'status'         => collect(['confirmed', 'confirmed', 'pending'])->random(),
+
+                    'created_at'     => now()->subDays(rand(1, 45)),
+                    'updated_at'     => now(),
                 ]);
             }
         }
 
-        $this->command->info('✅ BookingSeeder nâng cao chạy thành công!');
+        $this->command->info('✅ BookingSeeder (thực tế rạp) chạy thành công!');
     }
 }

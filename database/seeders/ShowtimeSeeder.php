@@ -12,17 +12,39 @@ class ShowtimeSeeder extends Seeder
 {
     public function run(): void
     {
-        $movies = Movie::all();
-        $rooms = Room::all();
+        $movies = Movie::pluck('id')->toArray();
+        $rooms  = Room::all();
 
-        foreach ($movies as $movie) {
-            foreach ($rooms as $room) {
-                Showtime::create([
-                    'movie_id' => $movie->id,
-                    'room_id' => $room->id,
-                    'start_time' => Carbon::now()->addDays(rand(1,5))->setHour(rand(10,20))->setMinute(0),
-                    'price' => rand(50000, 150000)
-                ]);
+        $timeSlots = [10, 13, 16, 19, 22];
+
+        foreach ($rooms as $room) {
+            for ($day = 1; $day <= 5; $day++) {
+
+                $slots = collect($timeSlots)->random(rand(3, 4));
+
+                foreach ($slots as $hour) {
+
+                    // 🎟️ Giá vé theo giờ chiếu
+                    if ($hour < 12) {
+                        $price = 70000;
+                    } elseif ($hour < 17) {
+                        $price = 85000;
+                    } elseif ($hour < 20) {
+                        $price = 100000;
+                    } else {
+                        $price = 120000;
+                    }
+
+                    Showtime::create([
+                        'movie_id'   => collect($movies)->random(),
+                        'room_id'    => $room->id,
+                        'start_time' => Carbon::now()
+                                            ->addDays($day)
+                                            ->setHour($hour)
+                                            ->setMinute(0),
+                        'price'      => $price,
+                    ]);
+                }
             }
         }
     }

@@ -10,28 +10,36 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // ================= ADMIN =================
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin123@gmail.com',
+            'name' => 'Admin Q&HCINEMA',
+            'email' => 'admin@qhcinema.com',
             'password' => Hash::make('12345678'),
             'role' => 'admin',
         ]);
 
-        User::create([
-            'name' => 'Client User',
-            'email' => 'client123@gmail.com',
-            'password' => Hash::make('12345678'),
-            'role' => 'user',
-        ]);
+        // ================= STAFF (10 TK) =================
+        for ($i = 1; $i <= 15; $i++) {
+            User::create([
+                'name' => "Staff Q&HCINEMA $i",
+                'email' => "staff$i@qhcinema.com",
+                'password' => Hash::make('12345678'),
+                'role' => 'staff',
+            ]);
+        }
 
-        // 👉 STAFF
-        User::create([
-            'name' => 'Staff User',
-            'email' => 'staff123@gmail.com',
-            'password' => Hash::make('12345678'),
-            'role' => 'staff',
-        ]);
+        // ================= USER / KHÁCH HÀNG (10 TK) =================
+        for ($i = 1; $i <= 100; $i++) {
+            User::create([
+                'name' => "Khách Hàng $i",
+                'email' => "user$i@gmail.com",
+                'password' => Hash::make('12345678'),
+                'role' => 'user',
+            ]);
+        }
 
-        User::factory()->count(20)->create();
+        // ================= USER RANDOM (OPTIONAL) =================
+        // Nếu không cần test tải, có thể xóa dòng này
+        User::factory()->count(10)->create();
     }
 }
