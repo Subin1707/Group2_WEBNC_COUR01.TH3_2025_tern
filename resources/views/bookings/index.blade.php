@@ -97,7 +97,6 @@
             @if(in_array(Auth::user()->role, ['admin','staff']))
             <td>
                 @php
-                    // ROUTE ĐÚNG THEO ROLE
                     if (Auth::user()->role === 'admin') {
                         $showRoute   = route('admin.bookings.show', $booking->id);
                         $editRoute   = route('admin.bookings.edit', $booking->id);
@@ -110,7 +109,6 @@
                 @endphp
 
                 <a href="{{ $showRoute }}" class="btn btn-info btn-sm">Xem</a>
-
                 <a href="{{ $editRoute }}" class="btn btn-warning btn-sm">Sửa</a>
 
                 <form action="{{ $deleteRoute }}" method="POST" style="display:inline-block;">
@@ -132,8 +130,8 @@
 
 @endif
 
-{{-- CHỈ CLIENT ĐƯỢC ĐẶT VÉ --}}
-@if(Auth::user()->role === 'client')
+{{-- ✅ CHỈ USER (KHÁCH HÀNG) ĐƯỢC ĐẶT VÉ --}}
+@if(Auth::user()->role === 'user')
     <a href="{{ route('bookings.choose') }}" class="btn btn-primary mt-3">
         🎟️ Đặt vé mới
     </a>
