@@ -45,7 +45,7 @@ Route::view('/about', 'about')->name('aboutme');
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard – THÔNG TIN NGƯỜI DÙNG
+    // Dashboard – USER
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
@@ -69,8 +69,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])
         ->name('bookings.create');
 
-    Route::post('/bookings/payment/preview', [BookingController::class, 'previewPayment'])
-        ->name('bookings.payment.preview');
+    // ✅ SỬA DUY NHẤT Ở ĐÂY (CÁCH 1)
+    Route::post('/bookings/payment/preview',
+        [BookingController::class, 'paymentPreview']
+    )->name('bookings.payment.preview');
 
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
@@ -100,7 +102,6 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // ADMIN DASHBOARD (KHÁC USER)
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
