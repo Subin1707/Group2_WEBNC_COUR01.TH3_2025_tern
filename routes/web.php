@@ -131,7 +131,7 @@ Route::middleware(['auth', 'staff'])
     ->name('staff.')
     ->group(function () {
 
-        Route::get('/dashboard', [DashboardController::class, 'staff'])
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
         Route::resource('bookings', BookingController::class)
