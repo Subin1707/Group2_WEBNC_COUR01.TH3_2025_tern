@@ -106,7 +106,7 @@
                         required
                     ></textarea>
 
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="submit" class="btn btn-primary px-4">
                         📩 Gửi phản hồi
                     </button>
                 </form>
