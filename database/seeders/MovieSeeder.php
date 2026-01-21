@@ -134,7 +134,7 @@ class MovieSeeder extends Seeder
             'description' => 'Bộ phim đậm chất đời sống Việt Nam.',
             'genre' => 'Drama',
             'duration' => 100,
-            'poster' => 'img/muipho.jpg'
+            'poster' => 'img/muipho.png'
         ]);
 
         Movie::create([
