@@ -18,11 +18,11 @@ class Booking extends Model
         'seats',          // VD: "A1,A2,A3"
         'total_price',
         'payment_method',
-        'status',         // pending | paid | cancelled
+        'status',         // pending | confirmed | cancelled
     ];
 
     /**
-     * Ép kiểu dữ liệu (an toàn)
+     * Ép kiểu dữ liệu
      */
     protected $casts = [
         'total_price' => 'integer',
@@ -59,13 +59,22 @@ class Booking extends Model
      * Trả về danh sách ghế dạng array
      * Ví dụ: ["A1", "A2", "A3"]
      */
-    public function getSeatArrayAttribute()
+    public function getSeatArrayAttribute(): array
     {
         if (!$this->seats) {
             return [];
         }
 
         return array_map('trim', explode(',', $this->seats));
+    }
+
+    /**
+     * Kiểm tra booking này có giữ ghế hay không
+     * (dùng cho logic khóa ghế)
+     */
+    public function isHoldingSeats(): bool
+    {
+        return in_array($this->status, ['pending', 'confirmed'], true);
     }
 
     /* =========================

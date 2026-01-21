@@ -57,12 +57,13 @@ class BookingController extends Controller
             return back()->with('error', '⚠️ Suất chiếu đã qua!');
         }
 
-        // 🔒 CHỈ LẤY GHẾ ĐÃ CONFIRMED
+        // 🔒 KHÓA GHẾ: pending + confirmed
         $occupiedSeats = Booking::where('showtime_id', $showtime->id)
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
             ->flatMap(fn ($s) => explode(',', $s))
             ->map(fn ($s) => trim($s))
+            ->unique()
             ->toArray();
 
         return view('bookings.create', compact(
@@ -106,17 +107,18 @@ class BookingController extends Controller
         $showtime = Showtime::findOrFail($request->showtime_id);
         $selectedSeats = array_map('trim', explode(',', $request->seats));
 
-        // 🔒 CHECK TRÙNG GHẾ ĐÃ CONFIRMED
+        // 🔒 CHỐNG 2 NGƯỜI CHỌN CÙNG GHẾ
         $occupiedSeats = Booking::where('showtime_id', $showtime->id)
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
             ->flatMap(fn ($s) => explode(',', $s))
             ->map(fn ($s) => trim($s))
+            ->unique()
             ->toArray();
 
         foreach ($selectedSeats as $seat) {
             if (in_array($seat, $occupiedSeats)) {
-                return back()->with('error', "⚠️ Ghế {$seat} đã được đặt!");
+                return back()->with('error', "⚠️ Ghế {$seat} đã được khách khác chọn!");
             }
         }
 
@@ -126,7 +128,7 @@ class BookingController extends Controller
             'seats'          => implode(',', $selectedSeats),
             'total_price'    => $showtime->price * count($selectedSeats),
             'payment_method' => $request->payment_method,
-            'status'         => 'pending',
+            'status'         => 'pending', // 🔒 GIỮ GHẾ
         ]);
 
         return redirect()->route('bookings.history')

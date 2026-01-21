@@ -50,19 +50,15 @@ class Showtime extends Model
      |=========================*/
 
     /**
-     * Lấy toàn bộ ghế đã được đặt (để khóa ghế)
-     * Chỉ tính booking hợp lệ
-     *
-     * @return array
+     * Danh sách ghế đã bị khóa
+     * Bao gồm: pending + confirmed
      */
-    public function getOccupiedSeatsAttribute()
+    public function getOccupiedSeatsAttribute(): array
     {
         return $this->bookings()
-            ->whereIn('status', ['confirmed']) // ✅ FIX: bỏ 'paid' (DB không có)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
-            ->flatMap(function ($seats) {
-                return explode(',', $seats);
-            })
+            ->flatMap(fn ($seats) => explode(',', $seats))
             ->map(fn ($s) => trim($s))
             ->unique()
             ->values()
@@ -70,10 +66,10 @@ class Showtime extends Model
     }
 
     /**
-     * Kiểm tra 1 ghế đã bị đặt chưa
+     * Kiểm tra 1 ghế đã bị khóa hay chưa
      */
     public function isSeatOccupied(string $seatCode): bool
     {
-        return in_array($seatCode, $this->occupied_seats);
+        return in_array($seatCode, $this->occupied_seats, true);
     }
 }

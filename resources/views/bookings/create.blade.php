@@ -11,13 +11,15 @@
         </h4>
         <small>
             Phòng: <strong>{{ $showtime->room->name }}</strong> |
-            Suất chiếu: {{ $showtime->start_time }}
+            Suất chiếu: {{ $showtime->start_time->format('d/m/Y H:i') }}
         </small>
     </div>
 </div>
 
 @if (session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
+    <div class="alert alert-danger text-center">
+        {{ session('error') }}
+    </div>
 @endif
 
 @if ($errors->any())
@@ -36,18 +38,17 @@
       data-price="{{ $showtime->price }}">
 
     @csrf
-
     <input type="hidden" name="showtime_id" value="{{ $showtime->id }}">
     <input type="hidden" name="seats" id="seats">
 
-    {{-- WRAPPER --}}
+    {{-- ================= SEAT WRAPPER ================= --}}
     <div class="seat-wrapper">
 
         {{-- SCREEN --}}
         <div class="screen">MÀN HÌNH</div>
 
         {{-- SEAT MAP --}}
-        <div class="seat-map mb-4">
+        <div class="seat-map">
 
             @php
                 $rows = max(1, (int) $showtime->room->seat_rows);
@@ -66,8 +67,11 @@
                             $isOccupied = in_array($code, $occupiedSeats ?? []);
                         @endphp
 
-                        <div class="seat {{ $isOccupied ? 'occupied' : '' }}"
-                             data-seat="{{ $code }}">
+                        <div
+                            class="seat {{ $isOccupied ? 'occupied' : '' }}"
+                            data-seat="{{ $code }}"
+                            @if($isOccupied) title="Ghế đã được đặt" @endif
+                        >
                             {{ $c }}
                         </div>
                     @endfor
@@ -78,9 +82,8 @@
     </div>
 
     {{-- INFO --}}
-    <div class="mb-3 text-center">
-        🎟 <strong>Số vé:</strong>
-        <span id="ticketCount">0</span><br>
+    <div class="info-box">
+        🎟 <strong>Số vé:</strong> <span id="ticketCount">0</span><br>
         💰 <strong>Tổng tiền:</strong>
         <span id="totalPrice">0</span> ₫
     </div>
@@ -92,85 +95,82 @@
     </div>
 </form>
 
-{{-- STYLE --}}
+{{-- ================= STYLE ================= --}}
 <style>
-/* ===== WRAPPER ===== */
 .seat-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* ===== SCREEN ===== */
 .screen {
-    width: 60%;
+    width: 65%;
     text-align: center;
     font-weight: bold;
-    letter-spacing: 3px;
-    margin-bottom: 16px;
-    padding: 8px 0;
-    border-radius: 20px;
+    letter-spacing: 4px;
+    margin-bottom: 18px;
+    padding: 10px 0;
+    border-radius: 30px;
     background: linear-gradient(to bottom, #eee, #bbb);
     color: #000;
 }
 
-/* ===== SEAT MAP ===== */
 .seat-map {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
-/* ===== ROW ===== */
 .seat-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
-/* ===== ROW LABEL ===== */
 .row-label {
     width: 30px;
     text-align: right;
     font-weight: bold;
-    margin-right: 6px;
+    margin-right: 8px;
 }
 
-/* ===== SEAT ===== */
 .seat {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     background: #7c4dff;
     color: #fff;
     text-align: center;
-    line-height: 36px;
-    border-radius: 8px;
+    line-height: 38px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     user-select: none;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
-/* Hover */
 .seat:not(.occupied):hover {
     transform: scale(1.1);
     opacity: 0.9;
 }
 
-/* Selected */
 .seat.selected {
     background: #e53935;
 }
 
-/* Occupied */
 .seat.occupied {
     background: #9e9e9e;
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.45;
+}
+
+.info-box {
+    margin: 18px 0;
+    text-align: center;
+    font-size: 16px;
 }
 </style>
 
-{{-- SCRIPT --}}
+{{-- ================= SCRIPT ================= --}}
 <script>
 const seats = document.querySelectorAll('.seat');
 const seatInput = document.getElementById('seats');
