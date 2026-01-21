@@ -51,14 +51,14 @@ class Showtime extends Model
 
     /**
      * Lấy toàn bộ ghế đã được đặt (để khóa ghế)
-     * Chỉ tính booking đã thanh toán / hợp lệ
+     * Chỉ tính booking hợp lệ
      *
      * @return array
      */
     public function getOccupiedSeatsAttribute()
     {
         return $this->bookings()
-            ->whereIn('status', ['paid', 'confirmed'])
+            ->whereIn('status', ['confirmed']) // ✅ FIX: bỏ 'paid' (DB không có)
             ->pluck('seats')
             ->flatMap(function ($seats) {
                 return explode(',', $seats);
