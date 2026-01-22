@@ -35,7 +35,6 @@ class BookingController extends Controller
             ->latest()
             ->paginate(10);
 
-        // 🔥 VIEW ĐÚNG FILE BẠN ĐÃ GỬI
         return view('bookings.history', compact('bookings'));
     }
 
@@ -67,7 +66,6 @@ class BookingController extends Controller
         abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
         abort_if($showtime->start_time < now(), 403);
 
-        // Ghế đã xác nhận
         $confirmedSeats = Booking::where('showtime_id', $showtime->id)
             ->where('status', 'confirmed')
             ->pluck('seats')
@@ -75,7 +73,6 @@ class BookingController extends Controller
             ->map(fn ($s) => trim($s))
             ->toArray();
 
-        // Ghế pending của user khác (10 phút)
         $pendingSeats = Booking::where('showtime_id', $showtime->id)
             ->where('status', 'pending')
             ->where('user_id', '!=', Auth::id())
@@ -100,12 +97,13 @@ class BookingController extends Controller
             'seats'       => 'required|string',
         ]);
 
-        $showtime = Showtime::with('movie')->findOrFail($request->showtime_id);
+$showtime = Showtime::with(['movie', 'room'])
+    ->findOrFail($request->showtime_id);
         $seats = array_map('trim', explode(',', $request->seats));
-
         $totalPrice = count($seats) * $showtime->price;
 
-        return view('bookings.payment-preview', compact(
+        // ✅ VIEW ĐÚNG FILE: bookings/payment.blade.php
+        return view('bookings.payment', compact(
             'showtime',
             'seats',
             'totalPrice'
