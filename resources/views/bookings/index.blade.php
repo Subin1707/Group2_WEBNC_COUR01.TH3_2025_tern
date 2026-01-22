@@ -18,7 +18,7 @@
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif
 
-@if($bookings->count() == 0)
+@if($bookings->count() === 0)
     <div class="alert alert-info">Chưa có booking nào.</div>
 @else
 
@@ -93,32 +93,45 @@
                 <span class="{{ $class }}">{{ ucfirst($booking->status) }}</span>
             </td>
 
-            {{-- ADMIN + STAFF --}}
+            {{-- HÀNH ĐỘNG --}}
             @if(in_array(Auth::user()->role, ['admin','staff']))
             <td>
-                @php
-                    if (Auth::user()->role === 'admin') {
-                        $showRoute   = route('admin.bookings.show', $booking->id);
-                        $editRoute   = route('admin.bookings.edit', $booking->id);
-                        $deleteRoute = route('admin.bookings.destroy', $booking->id);
-                    } else {
-                        $showRoute   = route('staff.bookings.show', $booking->id);
-                        $editRoute   = route('staff.bookings.edit', $booking->id);
-                        $deleteRoute = route('staff.bookings.destroy', $booking->id);
-                    }
-                @endphp
 
-                <a href="{{ $showRoute }}" class="btn btn-info btn-sm">Xem</a>
-                <a href="{{ $editRoute }}" class="btn btn-warning btn-sm">Sửa</a>
+                {{-- ADMIN --}}
+                @if(Auth::user()->role === 'admin')
+                    <a href="{{ route('admin.bookings.show', $booking) }}"
+                       class="btn btn-info btn-sm">Xem</a>
 
-                <form action="{{ $deleteRoute }}" method="POST" style="display:inline-block;">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger btn-sm"
-                        onclick="return confirm('Bạn có chắc muốn xóa?')">
-                        Xóa
-                    </button>
-                </form>
+                    <a href="{{ route('admin.bookings.edit', $booking) }}"
+                       class="btn btn-warning btn-sm">Sửa</a>
+
+                    <form action="{{ route('admin.bookings.destroy', $booking) }}"
+                          method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-danger btn-sm"
+                            onclick="return confirm('Bạn có chắc muốn xóa?')">
+                            Xóa
+                        </button>
+                    </form>
+                @endif
+
+                {{-- STAFF --}}
+                @if(Auth::user()->role === 'staff')
+                    <a href="{{ route('staff.bookings.show', $booking) }}"
+                       class="btn btn-info btn-sm">Xem</a>
+
+                    @if($booking->status === 'pending')
+                        <form action="{{ route('staff.bookings.confirm', $booking) }}"
+                              method="POST" class="d-inline">
+                            @csrf
+                            <button class="btn btn-success btn-sm">
+                                Xác nhận
+                            </button>
+                        </form>
+                    @endif
+                @endif
+
             </td>
             @endif
         </tr>
@@ -130,7 +143,7 @@
 
 @endif
 
-{{-- ✅ CHỈ USER (KHÁCH HÀNG) ĐƯỢC ĐẶT VÉ --}}
+{{-- USER --}}
 @if(Auth::user()->role === 'user')
     <a href="{{ route('bookings.choose') }}" class="btn btn-primary mt-3">
         🎟️ Đặt vé mới
