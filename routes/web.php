@@ -118,9 +118,9 @@ Route::middleware(['auth', 'admin'])
     });
 
 /*
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 | STAFF
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 */
 Route::middleware(['auth', 'staff'])
     ->prefix('staff')
@@ -133,8 +133,8 @@ Route::middleware(['auth', 'staff'])
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
-        // ✅ STAFF XÁC NHẬN THANH TOÁN
-        Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])
+        // ✅ STAFF XÁC NHẬN THANH TOÁN (FIX: PATCH → POST)
+        Route::post('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])
             ->name('bookings.confirm');
 
         // 🔥 STAFF SCAN QR → CHECK-IN
