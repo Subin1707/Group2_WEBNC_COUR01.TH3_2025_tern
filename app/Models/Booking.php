@@ -16,49 +16,53 @@ class Booking extends Model
     protected $fillable = [
         'user_id',
         'showtime_id',
-        'booking_code',     // MÃ VÉ – DÙNG CHO QR
+
+        // vé
+        'booking_code',
+        'qr_token',
         'room_code',
-        'seats',            // VD: "A1,A2,A3"
+
+        // ghế & giá
+        'seats',
         'total_price',
+
+        // thanh toán
         'payment_method',
+        'status',
 
-        'status',           // pending | confirmed | cancelled
-        'expires_at',
-
-        // xác nhận thanh toán
+        // staff
         'confirmed_at',
         'confirmed_by',
 
-        // 🔥 CHECK-IN VÀO RẠP (QR)
+        // check-in
         'checked_in_at',
-        'checked_in_by',
     ];
 
     /**
      * Ép kiểu dữ liệu
      */
     protected $casts = [
-        'total_price'   => 'float',
-        'expires_at'    => 'datetime',
+        'total_price'   => 'integer',
         'confirmed_at'  => 'datetime',
         'checked_in_at' => 'datetime',
-        'status'        => 'string',
     ];
 
     /* =========================
      |        BOOT
      |=========================*/
 
-    /**
-     * Tự sinh booking_code khi tạo vé
-     */
     protected static function booted()
     {
         static::creating(function ($booking) {
+
+            // sinh mã vé
             if (empty($booking->booking_code)) {
-                $booking->booking_code = strtoupper(
-                    'TICKET-' . Str::random(8)
-                );
+                $booking->booking_code = 'TICKET-' . strtoupper(Str::random(8));
+            }
+
+            // sinh token QR (scan)
+            if (empty($booking->qr_token)) {
+                $booking->qr_token = Str::uuid();
             }
         });
     }
@@ -67,16 +71,19 @@ class Booking extends Model
      |        RELATIONS
      |=========================*/
 
-    // Booking thuộc về User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Booking thuộc về Showtime
     public function showtime()
     {
         return $this->belongsTo(Showtime::class);
+    }
+
+    public function confirmer()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
     }
 
     /* =========================
@@ -84,7 +91,7 @@ class Booking extends Model
      |=========================*/
 
     /**
-     * Trả về danh sách ghế dạng array
+     * Danh sách ghế dạng array
      */
     public function getSeatArrayAttribute(): array
     {
@@ -92,7 +99,7 @@ class Booking extends Model
     }
 
     /**
-     * Vé đã được check-in chưa
+     * Vé đã check-in chưa
      */
     public function isCheckedIn(): bool
     {
@@ -100,9 +107,9 @@ class Booking extends Model
     }
 
     /**
-     * Staff check-in vé (scan QR)
+     * Staff scan QR → check-in
      */
-    public function checkIn(int $staffId): void
+    public function checkIn(): void
     {
         if ($this->status !== 'confirmed') {
             abort(403, '❌ Vé chưa được xác nhận');
@@ -114,7 +121,6 @@ class Booking extends Model
 
         $this->update([
             'checked_in_at' => now(),
-            'checked_in_by' => $staffId,
         ]);
     }
 
@@ -123,10 +129,10 @@ class Booking extends Model
      |=========================*/
 
     /**
-     * Tìm booking theo mã vé (QR)
+     * Tìm vé theo QR token
      */
-    public function scopeByBookingCode($query, string $code)
+    public function scopeByQrToken($query, string $token)
     {
-        return $query->where('booking_code', $code);
+        return $query->where('qr_token', $token);
     }
 }

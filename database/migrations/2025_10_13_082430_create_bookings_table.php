@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+
     public function up(): void
     {
         Schema::create('bookings', function (Blueprint $table) {
@@ -23,10 +24,10 @@ return new class extends Migration {
             // Mã vé hiển thị cho khách
             $table->string('booking_code')->unique();
 
-            // 🔥 TOKEN QR – scan check-in
+            // 🔥 TOKEN QR – dùng cho scan check-in
             $table->uuid('qr_token')->unique();
 
-            // Mã phòng hiển thị nhanh
+            // Mã / tên phòng (snapshot lúc đặt vé)
             $table->string('room_code')->nullable();
 
             /* ================= GHẾ & GIÁ ================= */
@@ -43,16 +44,17 @@ return new class extends Migration {
 
             /* ================= TRẠNG THÁI ================= */
             $table->enum('status', [
-                'pending',     // giữ ghế tạm
+                'pending',     // giữ ghế / chờ thanh toán
                 'confirmed',   // staff xác nhận
                 'cancelled'
             ])->default('pending');
 
             /* ================= CHECK-IN ================= */
-            // 🔥 Đã check-in lúc nào (chống scan lại)
+            // Đã scan QR vào rạp (chống scan lại)
             $table->timestamp('checked_in_at')->nullable();
 
             /* ================= STAFF ================= */
+            // Thời điểm staff xác nhận thanh toán
             $table->timestamp('confirmed_at')->nullable();
 
             $table->foreignId('confirmed_by')
