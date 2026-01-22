@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BookingController extends Controller
 {
@@ -13,6 +15,11 @@ class BookingController extends Controller
     public function index()
     {
         abort_unless(in_array(Auth::user()->role, ['admin', 'staff']), 403);
+
+        // 🔥 AUTO HUỶ VÉ QUÁ 10 PHÚT
+        Booking::where('status', 'pending')
+            ->where('created_at', '<', now()->subMinutes(10))
+            ->delete();
 
         $bookings = Booking::with(['showtime.movie', 'user'])
             ->latest()
@@ -30,8 +37,13 @@ class BookingController extends Controller
     {
         abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
 
+        // 🔥 AUTO HUỶ VÉ QUÁ 10 PHÚT
+        Booking::where('status', 'pending')
+            ->where('created_at', '<', now()->subMinutes(10))
+            ->delete();
+
         $bookings = Booking::where('user_id', Auth::id())
-            ->with('showtime.movie')
+            ->with(['showtime.movie', 'showtime.room'])
             ->latest()
             ->paginate(10);
 
@@ -97,12 +109,12 @@ class BookingController extends Controller
             'seats'       => 'required|string',
         ]);
 
-$showtime = Showtime::with(['movie', 'room'])
-    ->findOrFail($request->showtime_id);
+        $showtime = Showtime::with(['movie', 'room'])
+            ->findOrFail($request->showtime_id);
+
         $seats = array_map('trim', explode(',', $request->seats));
         $totalPrice = count($seats) * $showtime->price;
 
-        // ✅ VIEW ĐÚNG FILE: bookings/payment.blade.php
         return view('bookings.payment', compact(
             'showtime',
             'seats',
@@ -158,5 +170,37 @@ $showtime = Showtime::with(['movie', 'room'])
         abort_if($booking->user_id !== Auth::id(), 403);
 
         return view('bookings.show', compact('booking'));
+    }
+
+    /* ===================== QR CODE ===================== */
+    public function qr(Booking $booking)
+    {
+        abort_if($booking->user_id !== Auth::id(), 403);
+
+        $qr = QrCode::size(250)->generate(route('bookings.show', $booking->id));
+
+        return view('bookings.qr', compact('booking', 'qr'));
+    }
+
+    /* ===================== EXPORT PDF ===================== */
+    public function exportPdf(Booking $booking)
+    {
+        abort_if($booking->user_id !== Auth::id(), 403);
+
+        $pdf = Pdf::loadView('bookings.pdf', compact('booking'));
+
+        return $pdf->download("ticket_{$booking->id}.pdf");
+    }
+
+    /* ===================== STAFF CONFIRM ===================== */
+    public function confirm(Booking $booking)
+    {
+        abort_unless(Auth::user()->role === 'staff', 403);
+
+        $booking->update([
+            'status' => 'confirmed'
+        ]);
+
+        return back()->with('success', '✅ Vé đã được xác nhận');
     }
 }

@@ -27,19 +27,16 @@ class Showtime extends Model
      |        RELATIONS
      |=========================*/
 
-    // Suất chiếu thuộc về phim
     public function movie()
     {
         return $this->belongsTo(Movie::class);
     }
 
-    // Suất chiếu thuộc về phòng
     public function room()
     {
         return $this->belongsTo(Room::class);
     }
 
-    // Suất chiếu có nhiều booking
     public function bookings()
     {
         return $this->hasMany(Booking::class);
@@ -49,13 +46,9 @@ class Showtime extends Model
      |          HELPERS
      |=========================*/
 
-    /**
-     * Danh sách ghế đã bị khóa
-     * Bao gồm: pending + confirmed
-     */
     public function getOccupiedSeatsAttribute(): array
     {
-        return $this->bookings()
+        return $this->bookings
             ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
             ->flatMap(fn ($seats) => explode(',', $seats))
@@ -65,11 +58,18 @@ class Showtime extends Model
             ->toArray();
     }
 
-    /**
-     * Kiểm tra 1 ghế đã bị khóa hay chưa
-     */
     public function isSeatOccupied(string $seatCode): bool
     {
         return in_array($seatCode, $this->occupied_seats, true);
+    }
+
+    public function isEnded(): bool
+    {
+        return $this->end_time->isPast();
+    }
+
+    public function canBook(): bool
+    {
+        return now()->lt($this->start_time);
     }
 }

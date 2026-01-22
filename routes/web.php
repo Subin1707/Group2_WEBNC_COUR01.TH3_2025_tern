@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | BOOKING - USER ONLY
+    | BOOKING - USER
     |--------------------------------------------------------------------------
     */
     Route::get('/bookings/choose', [BookingController::class, 'chooseShowtime'])
@@ -60,19 +60,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bookings/create/{showtime}', [BookingController::class, 'create'])
         ->name('bookings.create');
 
-    Route::post('/bookings/payment/preview',
-        [BookingController::class, 'paymentPreview']
-    )->name('bookings.payment.preview');
+    Route::post('/bookings/payment/preview', [BookingController::class, 'paymentPreview'])
+        ->name('bookings.payment.preview');
 
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
 
-    // ✅ USER XEM DANH SÁCH RIÊNG
+    // USER HISTORY
     Route::get('/my-bookings', [BookingController::class, 'history'])
         ->name('bookings.history');
 
     Route::get('/my-bookings/{booking}', [BookingController::class, 'show'])
         ->name('bookings.show');
+
+    // 🔲 QR CODE VÉ
+    Route::get('/my-bookings/{booking}/qr', [BookingController::class, 'qr'])
+        ->name('bookings.qr');
+
+    // 🔲 XUẤT PDF VÉ
+    Route::get('/my-bookings/{booking}/pdf', [BookingController::class, 'exportPdf'])
+        ->name('bookings.pdf');
 
     // COMMENTS
     Route::post('/movies/{movie}/comments', [CommentController::class, 'store'])
@@ -100,7 +107,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
 
-        // ✅ ADMIN XEM TẤT CẢ
+        // ADMIN XEM TẤT CẢ BOOKING
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
@@ -125,6 +132,10 @@ Route::middleware(['auth', 'staff'])
 
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
+
+        // ✅ STAFF XÁC NHẬN VÉ
+        Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])
+            ->name('bookings.confirm');
     });
 
 require __DIR__ . '/auth.php';
