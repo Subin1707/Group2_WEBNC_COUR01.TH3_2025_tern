@@ -55,7 +55,6 @@
                     <form action="{{ route('staff.bookings.confirm', $booking) }}"
                           method="POST" class="d-inline">
                         @csrf
-                        @method('PATCH')
                         <button class="btn btn-success btn-sm">
                             Xác nhận
                         </button>
