@@ -7,43 +7,50 @@ use App\Models\Movie;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ShowtimeController extends Controller
 {
-   public function index(Request $request)
-{
-    $query = Showtime::with(['movie', 'room']);
+    public function index(Request $request)
+    {
+        // 👉 LẤY SUẤT CHIẾU TRONG 7 NGÀY (HÔM NAY → +6 NGÀY)
+        $query = Showtime::with(['movie', 'room'])
+            ->whereBetween('start_time', [
+                Carbon::today(),
+                Carbon::today()->addDays(6)
+            ]);
 
-    if ($request->has('search') && !empty($request->search)) {
-        $keyword = $request->search;
+        // 🔍 SEARCH
+        if ($request->filled('search')) {
+            $keyword = $request->search;
 
-        $query->where(function ($q) use ($keyword) {
-            $q->whereHas('movie', function ($m) use ($keyword) {
-                $m->where('title', 'like', "%{$keyword}%");
-            })
-            ->orWhereHas('room', function ($r) use ($keyword) {
-                $r->where('name', 'like', "%{$keyword}%");
-            })
-            ->orWhereDate('start_time', $keyword); 
-        });
+            $query->where(function ($q) use ($keyword) {
+                $q->whereHas('movie', function ($m) use ($keyword) {
+                    $m->where('title', 'like', "%{$keyword}%");
+                })
+                ->orWhereHas('room', function ($r) use ($keyword) {
+                    $r->where('name', 'like', "%{$keyword}%");
+                })
+                ->orWhereDate('start_time', $keyword);
+            });
+        }
+
+        $showtimes = $query
+            ->orderBy('start_time', 'asc')
+            ->paginate(10);
+
+        return view('showtimes.index', compact('showtimes'));
     }
-
-    $showtimes = $query->orderBy('start_time', 'asc')->paginate(10);
-
-    return view('showtimes.index', compact('showtimes'));
-}
-
 
     public function create()
     {
         $this->authorizeAdmin();
 
         $movies = Movie::all();
-        $rooms = Room::all();
+        $rooms  = Room::all();
 
         return view('showtimes.create', compact('movies', 'rooms'));
     }
-
 
     public function store(Request $request)
     {
@@ -55,12 +62,14 @@ class ShowtimeController extends Controller
             'start_time' => 'required|date|after:now',
             'price'      => 'required|numeric|min:0',
         ]);
-        
 
-        Showtime::create($request->only(['movie_id', 'room_id', 'start_time', 'price']));
+        Showtime::create(
+            $request->only(['movie_id', 'room_id', 'start_time', 'price'])
+        );
 
-        return redirect()->route('admin.showtimes.index')
-                         ->with('success', '🎬 Thêm suất chiếu thành công!');
+        return redirect()
+            ->route('admin.showtimes.index')
+            ->with('success', '🎬 Thêm suất chiếu thành công!');
     }
 
     public function show(Showtime $showtime)
@@ -74,7 +83,7 @@ class ShowtimeController extends Controller
         $this->authorizeAdmin();
 
         $movies = Movie::all();
-        $rooms = Room::all();
+        $rooms  = Room::all();
 
         return view('showtimes.edit', compact('showtime', 'movies', 'rooms'));
     }
@@ -90,10 +99,13 @@ class ShowtimeController extends Controller
             'price'      => 'required|numeric|min:0',
         ]);
 
-        $showtime->update($request->only(['movie_id', 'room_id', 'start_time', 'price']));
+        $showtime->update(
+            $request->only(['movie_id', 'room_id', 'start_time', 'price'])
+        );
 
-        return redirect()->route('admin.showtimes.index')
-                         ->with('success', '✅ Cập nhật suất chiếu thành công!');
+        return redirect()
+            ->route('admin.showtimes.index')
+            ->with('success', '✅ Cập nhật suất chiếu thành công!');
     }
 
     public function destroy(Showtime $showtime)
@@ -102,8 +114,9 @@ class ShowtimeController extends Controller
 
         $showtime->delete();
 
-        return redirect()->route('admin.showtimes.index')
-                         ->with('success', '🗑️ Xóa suất chiếu thành công!');
+        return redirect()
+            ->route('admin.showtimes.index')
+            ->with('success', '🗑️ Xóa suất chiếu thành công!');
     }
 
     private function authorizeAdmin()

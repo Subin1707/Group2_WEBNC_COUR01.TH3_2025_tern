@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Vé xem phim</title>
+
     <style>
         body {
             font-family: DejaVu Sans;
@@ -45,8 +46,15 @@
             text-align: center;
             font-size: 26px;
             font-weight: bold;
-            color: #c00;
             margin-top: 20px;
+        }
+
+        .used.used-red {
+            color: #c00;
+        }
+
+        .used.used-gray {
+            color: #777;
         }
     </style>
 </head>
@@ -88,17 +96,31 @@
 
     <hr>
 
-    {{-- ================= QR CODE ================= --}}
-    @if($booking->status === 'confirmed' && !$booking->confirmed_at)
+    {{-- ================= TRẠNG THÁI VÉ ================= --}}
+    @php
+        $showtimeStart = \Carbon\Carbon::parse($booking->showtime->start_time);
+        $now = now();
+    @endphp
+
+    {{-- ĐÃ SỬ DỤNG --}}
+    @if($booking->checked_in_at)
+        <div class="used used-red">
+            ĐÃ SỬ DỤNG
+        </div>
+
+    {{-- HẾT HIỆU LỰC --}}
+    @elseif($now->gt($showtimeStart))
+        <div class="used used-gray">
+            HẾT HIỆU LỰC
+        </div>
+
+    {{-- CÒN HIỆU LỰC → HIỆN QR --}}
+    @else
         <div class="qr">
             {!! QrCode::size(150)->generate(
                 route('staff.bookings.scan', $booking->booking_code)
             ) !!}
             <p>Quét mã QR khi vào rạp</p>
-        </div>
-    @else
-        <div class="used">
-            ĐÃ SỬ DỤNG
         </div>
     @endif
 
