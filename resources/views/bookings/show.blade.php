@@ -6,7 +6,7 @@
     <div class="col-md-12">
         <h4 class="mb-0">
             <i class="fa fa-ticket col_red me-1"></i>
-            Chi tiết <span class="col_red">Vé #{{ $booking->id }}</span>
+            Chi tiết <span class="col_red">Vé {{ $booking->booking_code }}</span>
         </h4>
     </div>
 </div>
@@ -14,7 +14,8 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
 
-        <ul class="list-group list-group-flush mb-3">
+        <ul class="list-group list-group-flush mb-4">
+
             <li class="list-group-item">
                 <strong>👤 Khách hàng:</strong>
                 {{ $booking->user->name ?? 'N/A' }}
@@ -26,16 +27,13 @@
             </li>
 
             <li class="list-group-item">
-                <strong>🕒 Ngày giờ:</strong>
+                <strong>🕒 Suất chiếu:</strong>
                 {{ \Carbon\Carbon::parse($booking->showtime->start_time)->format('d/m/Y H:i') }}
             </li>
 
             <li class="list-group-item">
-                <strong>🏢 Phòng chiếu:</strong>
+                <strong>🏢 Phòng:</strong>
                 {{ $booking->showtime->room->name ?? 'N/A' }}
-                @if(isset($booking->showtime->room->code))
-                    (Mã: {{ $booking->showtime->room->code }})
-                @endif
             </li>
 
             <li class="list-group-item">
@@ -58,19 +56,33 @@
             </li>
 
             <li class="list-group-item">
-                <strong>📌 Trạng thái:</strong>
-                <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : 'warning' }}">
-                    {{ ucfirst($booking->status) }}
-                </span>
+                <strong>📌 Trạng thái vé:</strong>
+
+                @if($booking->status === 'pending')
+                    <span class="badge bg-warning">⏳ Chờ xác nhận</span>
+
+                @elseif($booking->status === 'confirmed' && !$booking->confirmed_at)
+                    <span class="badge bg-success">✅ Đã thanh toán</span>
+
+                @elseif($booking->confirmed_at)
+                    <span class="badge bg-secondary">🎬 Đã vào rạp</span>
+                @endif
             </li>
+
         </ul>
 
         {{-- ================= QR CODE ================= --}}
-        @if($booking->status === 'confirmed')
+        @if($booking->status === 'confirmed' && !$booking->confirmed_at)
             <div class="text-center mb-4">
-                <h5 class="mb-2">🔲 QR Code Vé</h5>
-                {!! QrCode::size(200)->generate(route('bookings.show', $booking->id)) !!}
-                <p class="text-muted mt-2">Xuất trình mã QR khi vào rạp</p>
+                <h5 class="mb-3">🔲 Mã QR Check-in</h5>
+
+                {!! QrCode::size(220)->generate(
+                    route('staff.bookings.scan', $booking->booking_code)
+                ) !!}
+
+                <p class="text-muted mt-2">
+                    Xuất trình mã này cho nhân viên khi vào rạp
+                </p>
             </div>
         @endif
 
@@ -92,7 +104,7 @@
                     @csrf
                     @method('PATCH')
                     <button class="btn btn-success">
-                        ✅ Xác nhận vé
+                        ✅ Xác nhận thanh toán
                     </button>
                 </form>
             @endif
@@ -108,6 +120,7 @@
             <a href="{{ url()->previous() }}" class="btn btn-secondary">
                 ⬅ Quay lại
             </a>
+
         </div>
 
     </div>

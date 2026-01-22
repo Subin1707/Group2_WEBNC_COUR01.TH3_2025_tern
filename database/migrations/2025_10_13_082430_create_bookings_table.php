@@ -5,10 +5,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
 
+            /* ================= USER & SHOWTIME ================= */
             $table->foreignId('user_id')
                   ->constrained()
                   ->cascadeOnDelete();
@@ -17,45 +19,57 @@ return new class extends Migration {
                   ->constrained()
                   ->cascadeOnDelete();
 
-            /**
-             * Ghế đã đặt
-             * Ví dụ: A1,A2,A3
-             */
+            /* ================= VÉ ================= */
+            // Mã vé hiển thị cho khách
+            $table->string('booking_code')->unique();
+
+            // 🔥 TOKEN QR – scan check-in
+            $table->uuid('qr_token')->unique();
+
+            // Mã phòng hiển thị nhanh
+            $table->string('room_code')->nullable();
+
+            /* ================= GHẾ & GIÁ ================= */
+            // Ví dụ: A1,A2,A3
             $table->string('seats');
 
-            /**
-             * Tổng tiền (VNĐ)
-             */
+            // Tổng tiền (VNĐ)
             $table->unsignedInteger('total_price');
 
-            /**
-             * Phương thức thanh toán
-             */
+            /* ================= THANH TOÁN ================= */
             $table->enum('payment_method', ['cash', 'transfer'])
                   ->nullable()
                   ->comment('cash = tiền mặt, transfer = chuyển khoản');
 
-            /**
-             * Trạng thái booking
-             */
+            /* ================= TRẠNG THÁI ================= */
             $table->enum('status', [
-                'pending',     // chưa thanh toán
-                'confirmed',   // đã thanh toán → KHÓA GHẾ
+                'pending',     // giữ ghế tạm
+                'confirmed',   // staff xác nhận
                 'cancelled'
             ])->default('pending');
 
-            /* =========================
-             |        INDEX
-             |=========================*/
+            /* ================= CHECK-IN ================= */
+            // 🔥 Đã check-in lúc nào (chống scan lại)
+            $table->timestamp('checked_in_at')->nullable();
 
-            // Tối ưu query kiểm tra ghế
+            /* ================= STAFF ================= */
+            $table->timestamp('confirmed_at')->nullable();
+
+            $table->foreignId('confirmed_by')
+                  ->nullable()
+                  ->constrained('users')
+                  ->nullOnDelete();
+
+            /* ================= INDEX ================= */
             $table->index(['showtime_id', 'status']);
+            $table->index('qr_token');
 
             $table->timestamps();
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('bookings');
     }
 };

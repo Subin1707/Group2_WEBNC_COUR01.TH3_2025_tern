@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // PROFILE
+    /* ================= PROFILE ================= */
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -73,11 +73,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-bookings/{booking}', [BookingController::class, 'show'])
         ->name('bookings.show');
 
-    // 🔲 QR CODE VÉ
+    // 🔲 QR CODE VÉ (USER XEM)
     Route::get('/my-bookings/{booking}/qr', [BookingController::class, 'qr'])
         ->name('bookings.qr');
 
-    // 🔲 XUẤT PDF VÉ
+    // 🔲 PDF VÉ
     Route::get('/my-bookings/{booking}/pdf', [BookingController::class, 'exportPdf'])
         ->name('bookings.pdf');
 
@@ -107,7 +107,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('rooms', RoomController::class);
         Route::resource('showtimes', ShowtimeController::class);
 
-        // ADMIN XEM TẤT CẢ BOOKING
+        // ADMIN XEM BOOKING
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
@@ -136,6 +136,10 @@ Route::middleware(['auth', 'staff'])
         // ✅ STAFF XÁC NHẬN VÉ
         Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])
             ->name('bookings.confirm');
+
+        // 🔥 STAFF SCAN QR CHECK-IN
+        Route::get('/scan/{qr_token}', [BookingController::class, 'scanQr'])
+            ->name('bookings.scan');
     });
 
 require __DIR__ . '/auth.php';

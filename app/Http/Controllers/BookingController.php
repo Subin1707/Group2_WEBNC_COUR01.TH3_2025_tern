@@ -16,11 +16,6 @@ class BookingController extends Controller
     {
         abort_unless(in_array(Auth::user()->role, ['admin', 'staff']), 403);
 
-        // 🔥 AUTO HUỶ VÉ QUÁ 10 PHÚT
-        Booking::where('status', 'pending')
-            ->where('created_at', '<', now()->subMinutes(10))
-            ->delete();
-
         $bookings = Booking::with(['showtime.movie', 'user'])
             ->latest()
             ->paginate(10);
@@ -36,11 +31,6 @@ class BookingController extends Controller
     public function history()
     {
         abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
-
-        // 🔥 AUTO HUỶ VÉ QUÁ 10 PHÚT
-        Booking::where('status', 'pending')
-            ->where('created_at', '<', now()->subMinutes(10))
-            ->delete();
 
         $bookings = Booking::where('user_id', Auth::id())
             ->with(['showtime.movie', 'showtime.room'])
@@ -72,29 +62,18 @@ class BookingController extends Controller
         return view('bookings.choose', compact('showtimes'));
     }
 
-    /* ===================== CREATE (SEAT MAP) ===================== */
+    /* ===================== CREATE ===================== */
     public function create(Showtime $showtime)
     {
         abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
         abort_if($showtime->start_time < now(), 403);
 
-        $confirmedSeats = Booking::where('showtime_id', $showtime->id)
-            ->where('status', 'confirmed')
+        $occupiedSeats = Booking::where('showtime_id', $showtime->id)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->pluck('seats')
             ->flatMap(fn ($s) => explode(',', $s))
             ->map(fn ($s) => trim($s))
             ->toArray();
-
-        $pendingSeats = Booking::where('showtime_id', $showtime->id)
-            ->where('status', 'pending')
-            ->where('user_id', '!=', Auth::id())
-            ->where('created_at', '>', now()->subMinutes(10))
-            ->pluck('seats')
-            ->flatMap(fn ($s) => explode(',', $s))
-            ->map(fn ($s) => trim($s))
-            ->toArray();
-
-        $occupiedSeats = array_unique(array_merge($confirmedSeats, $pendingSeats));
 
         return view('bookings.create', compact('showtime', 'occupiedSeats'));
     }
@@ -133,51 +112,45 @@ class BookingController extends Controller
             'payment_method' => 'required|in:cash,transfer',
         ]);
 
-        $showtime = Showtime::findOrFail($request->showtime_id);
+        $showtime = Showtime::with('room')->findOrFail($request->showtime_id);
         $selectedSeats = array_map('trim', explode(',', $request->seats));
-
-        $lockedSeats = Booking::where('showtime_id', $showtime->id)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->pluck('seats')
-            ->flatMap(fn ($s) => explode(',', $s))
-            ->map(fn ($s) => trim($s))
-            ->toArray();
-
-        foreach ($selectedSeats as $seat) {
-            abort_if(in_array($seat, $lockedSeats), 409, "Ghế {$seat} đã được giữ");
-        }
 
         Booking::create([
             'user_id'        => Auth::id(),
             'showtime_id'    => $showtime->id,
+            'room_code'      => $showtime->room->name ?? null,
             'seats'          => implode(',', $selectedSeats),
             'total_price'    => count($selectedSeats) * $showtime->price,
             'payment_method' => $request->payment_method,
             'status'         => 'pending',
+            'expires_at'     => now()->addMinutes(10),
         ]);
 
-        return redirect()->route('bookings.history')
+        return redirect()
+            ->route('bookings.history')
             ->with('success', '🎟️ Đặt vé thành công!');
     }
 
     /* ===================== SHOW ===================== */
     public function show(Booking $booking)
     {
-        if (in_array(Auth::user()->role, ['admin', 'staff'])) {
-            return view('bookings.show', compact('booking'));
+        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+            abort_if($booking->user_id !== Auth::id(), 403);
         }
-
-        abort_if($booking->user_id !== Auth::id(), 403);
 
         return view('bookings.show', compact('booking'));
     }
 
-    /* ===================== QR CODE ===================== */
+    /* ===================== QR CODE (USER) ===================== */
     public function qr(Booking $booking)
     {
         abort_if($booking->user_id !== Auth::id(), 403);
 
-        $qr = QrCode::size(250)->generate(route('bookings.show', $booking->id));
+        abort_if($booking->status !== 'confirmed', 403);
+
+        $qr = QrCode::size(250)->generate(
+            route('staff.bookings.scan', $booking->booking_code)
+        );
 
         return view('bookings.qr', compact('booking', 'qr'));
     }
@@ -189,18 +162,36 @@ class BookingController extends Controller
 
         $pdf = Pdf::loadView('bookings.pdf', compact('booking'));
 
-        return $pdf->download("ticket_{$booking->id}.pdf");
+        return $pdf->download("ticket_{$booking->booking_code}.pdf");
     }
 
-    /* ===================== STAFF CONFIRM ===================== */
+    /* ===================== STAFF CONFIRM (THANH TOÁN) ===================== */
     public function confirm(Booking $booking)
     {
         abort_unless(Auth::user()->role === 'staff', 403);
 
+        abort_if($booking->status !== 'pending', 409);
+
         $booking->update([
-            'status' => 'confirmed'
+            'status'       => 'confirmed',
+            'confirmed_at' => now(),
+            'confirmed_by' => Auth::id(),
         ]);
 
         return back()->with('success', '✅ Vé đã được xác nhận');
+    }
+
+    /* ===================== STAFF SCAN QR (CHECK-IN) ===================== */
+    public function scanQr(string $bookingCode)
+    {
+        abort_unless(Auth::user()->role === 'staff', 403);
+
+        $booking = Booking::byBookingCode($bookingCode)
+            ->with(['showtime.movie', 'user'])
+            ->firstOrFail();
+
+        $booking->checkIn(Auth::id());
+
+        return view('bookings.staff.scan-result', compact('booking'));
     }
 }
