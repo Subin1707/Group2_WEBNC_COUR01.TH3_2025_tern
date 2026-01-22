@@ -93,8 +93,9 @@
                                     <a class="nav-link" href="{{ route('bookings.history') }}">📜 Vé của tôi</a>
                                 </li>
                             @else
+                                {{-- ✅ FIX TẠI ĐÂY --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('bookings.index') }}">📋 Quản lý vé</a>
+                                    <a class="nav-link" href="{{ route('staff.bookings.index') }}">📋 Quản lý vé</a>
                                 </li>
                             @endif
                         @endif
