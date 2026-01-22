@@ -133,12 +133,12 @@ Route::middleware(['auth', 'staff'])
         Route::resource('bookings', BookingController::class)
             ->except(['create', 'store']);
 
-        // ✅ STAFF XÁC NHẬN VÉ
+        // ✅ STAFF XÁC NHẬN THANH TOÁN
         Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])
             ->name('bookings.confirm');
 
-        // 🔥 STAFF SCAN QR CHECK-IN
-        Route::get('/scan/{qr_token}', [BookingController::class, 'scanQr'])
+        // 🔥 STAFF SCAN QR → CHECK-IN
+        Route::get('/scan/{booking_code}', [BookingController::class, 'scanQr'])
             ->name('bookings.scan');
     });
 

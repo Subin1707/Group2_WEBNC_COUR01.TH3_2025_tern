@@ -123,7 +123,6 @@ class BookingController extends Controller
             'total_price'    => count($selectedSeats) * $showtime->price,
             'payment_method' => $request->payment_method,
             'status'         => 'pending',
-            'expires_at'     => now()->addMinutes(10),
         ]);
 
         return redirect()
@@ -145,7 +144,6 @@ class BookingController extends Controller
     public function qr(Booking $booking)
     {
         abort_if($booking->user_id !== Auth::id(), 403);
-
         abort_if($booking->status !== 'confirmed', 403);
 
         $qr = QrCode::size(250)->generate(
@@ -169,7 +167,6 @@ class BookingController extends Controller
     public function confirm(Booking $booking)
     {
         abort_unless(Auth::user()->role === 'staff', 403);
-
         abort_if($booking->status !== 'pending', 409);
 
         $booking->update([
@@ -190,7 +187,8 @@ class BookingController extends Controller
             ->with(['showtime.movie', 'user'])
             ->firstOrFail();
 
-        $booking->checkIn(Auth::id());
+        // ✅ check-in (chống scan lại)
+        $booking->checkIn();
 
         return view('bookings.staff.scan-result', compact('booking'));
     }

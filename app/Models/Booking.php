@@ -19,7 +19,6 @@ class Booking extends Model
 
         // vé
         'booking_code',
-        'qr_token',
         'room_code',
 
         // ghế & giá
@@ -30,11 +29,11 @@ class Booking extends Model
         'payment_method',
         'status',
 
-        // staff
+        // staff xác nhận
         'confirmed_at',
         'confirmed_by',
 
-        // check-in
+        // check-in QR
         'checked_in_at',
     ];
 
@@ -55,14 +54,9 @@ class Booking extends Model
     {
         static::creating(function ($booking) {
 
-            // sinh mã vé
+            // ✅ Tự sinh mã vé (dùng cho QR)
             if (empty($booking->booking_code)) {
                 $booking->booking_code = 'TICKET-' . strtoupper(Str::random(8));
-            }
-
-            // sinh token QR (scan)
-            if (empty($booking->qr_token)) {
-                $booking->qr_token = Str::uuid();
             }
         });
     }
@@ -99,7 +93,7 @@ class Booking extends Model
     }
 
     /**
-     * Vé đã check-in chưa
+     * Vé đã được check-in chưa
      */
     public function isCheckedIn(): bool
     {
@@ -129,10 +123,10 @@ class Booking extends Model
      |=========================*/
 
     /**
-     * Tìm vé theo QR token
+     * Tìm vé theo booking_code (QR)
      */
-    public function scopeByQrToken($query, string $token)
+    public function scopeByBookingCode($query, string $code)
     {
-        return $query->where('qr_token', $token);
+        return $query->where('booking_code', $code);
     }
 }

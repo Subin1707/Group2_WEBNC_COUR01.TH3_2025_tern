@@ -21,40 +21,34 @@ return new class extends Migration {
                   ->cascadeOnDelete();
 
             /* ================= VÉ ================= */
-            // Mã vé hiển thị cho khách
+            // Mã vé – dùng để tạo QR & scan
             $table->string('booking_code')->unique();
 
-            // 🔥 TOKEN QR – dùng cho scan check-in
-            $table->uuid('qr_token')->unique();
-
-            // Mã / tên phòng (snapshot lúc đặt vé)
+            // Snapshot phòng lúc đặt
             $table->string('room_code')->nullable();
 
             /* ================= GHẾ & GIÁ ================= */
             // Ví dụ: A1,A2,A3
             $table->string('seats');
 
-            // Tổng tiền (VNĐ)
             $table->unsignedInteger('total_price');
 
             /* ================= THANH TOÁN ================= */
             $table->enum('payment_method', ['cash', 'transfer'])
-                  ->nullable()
-                  ->comment('cash = tiền mặt, transfer = chuyển khoản');
+                  ->nullable();
 
             /* ================= TRẠNG THÁI ================= */
             $table->enum('status', [
-                'pending',     // giữ ghế / chờ thanh toán
-                'confirmed',   // staff xác nhận
+                'pending',
+                'confirmed',
                 'cancelled'
             ])->default('pending');
 
             /* ================= CHECK-IN ================= */
-            // Đã scan QR vào rạp (chống scan lại)
+            // Đã scan QR chưa
             $table->timestamp('checked_in_at')->nullable();
 
             /* ================= STAFF ================= */
-            // Thời điểm staff xác nhận thanh toán
             $table->timestamp('confirmed_at')->nullable();
 
             $table->foreignId('confirmed_by')
@@ -64,7 +58,7 @@ return new class extends Migration {
 
             /* ================= INDEX ================= */
             $table->index(['showtime_id', 'status']);
-            $table->index('qr_token');
+            $table->index('booking_code');
 
             $table->timestamps();
         });
