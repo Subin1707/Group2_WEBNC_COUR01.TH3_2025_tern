@@ -92,10 +92,10 @@
 
             {{-- USER --}}
             @if(Auth::id() === $booking->user_id)
-                <a href="{{ route('bookings.exportPdf', $booking->id) }}"
-                   class="btn btn-danger">
+                <a href="{{ route('bookings.pdf', $booking->id) }}"
+                class="btn btn-danger">
                     📄 Xuất vé PDF
-                </a>
+</a>
             @endif
 
             {{-- STAFF --}}
