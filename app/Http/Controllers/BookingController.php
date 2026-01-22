@@ -20,11 +20,10 @@ class BookingController extends Controller
             ->latest()
             ->paginate(10);
 
-        $view = Auth::user()->role === 'admin'
-            ? 'bookings.admin.index'
-            : 'bookings.staff.index';
-
-        return view($view, compact('bookings'));
+        // ✅ VIEW PHÂN THEO ROLE (BẮT BUỘC PHẢI TỒN TẠI)
+        return Auth::user()->role === 'admin'
+            ? view('bookings.admin.index', compact('bookings'))
+            : view('bookings.staff.index', compact('bookings'));
     }
 
     /* ===================== USER HISTORY ===================== */
@@ -187,7 +186,7 @@ class BookingController extends Controller
             ->with(['showtime.movie', 'user'])
             ->firstOrFail();
 
-        // ✅ check-in (chống scan lại)
+        // ✅ chống scan lại
         $booking->checkIn();
 
         return view('bookings.staff.scan-result', compact('booking'));
