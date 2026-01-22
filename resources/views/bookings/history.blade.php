@@ -24,6 +24,7 @@
         <tr>
             <th>ID</th>
             <th>Phim</th>
+            <th>Phòng</th> {{-- ✅ THÊM --}}
             <th>Ngày giờ</th>
             <th>Ghế</th>
             <th>Tổng tiền</th>
@@ -40,9 +41,26 @@
 
             <tr>
                 <td>{{ $booking->id }}</td>
-                <td>{{ $booking->showtime->movie->title ?? 'N/A' }}</td>
-                <td>{{ \Carbon\Carbon::parse($booking->showtime->start_time)->format('d/m/Y H:i') }}</td>
+
+                <td>
+                    {{ $booking->showtime->movie->title ?? 'N/A' }}
+                </td>
+
+                {{-- ✅ PHÒNG --}}
+                <td>
+                    <span class="badge bg-secondary">
+                        {{ $booking->showtime->room->code 
+                            ?? $booking->showtime->room->name 
+                            ?? 'N/A' }}
+                    </span>
+                </td>
+
+                <td>
+                    {{ \Carbon\Carbon::parse($booking->showtime->start_time)->format('d/m/Y H:i') }}
+                </td>
+
                 <td>{{ $booking->seats }}</td>
+
                 <td>{{ number_format($booking->total_price) }} ₫</td>
 
                 <td>
@@ -56,13 +74,17 @@
                 </td>
 
                 <td>
-                    <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : ($booking->status === 'pending' ? 'warning' : 'danger') }}">
+                    <span class="badge bg-{{ 
+                        $booking->status === 'confirmed' ? 'success' : 
+                        ($booking->status === 'pending' ? 'warning' : 'danger') 
+                    }}">
                         {{ ucfirst($booking->status) }}
                     </span>
                 </td>
 
                 <td>
-                    <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-info btn-sm">
+                    <a href="{{ route('bookings.show', $booking->id) }}"
+                       class="btn btn-info btn-sm">
                         Xem
                     </a>
                 </td>
