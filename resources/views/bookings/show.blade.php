@@ -14,6 +14,7 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
 
+        {{-- ================= INFO ================= --}}
         <ul class="list-group list-group-flush mb-4">
 
             <li class="list-group-item">
@@ -28,7 +29,7 @@
 
             <li class="list-group-item">
                 <strong>🕒 Suất chiếu:</strong>
-                {{ \Carbon\Carbon::parse($booking->showtime->start_time)->format('d/m/Y H:i') }}
+                {{ $booking->showtime->start_time->format('d/m/Y H:i') }}
             </li>
 
             <li class="list-group-item">
@@ -56,23 +57,19 @@
             </li>
 
             <li class="list-group-item">
-                <strong>📌 Trạng thái vé:</strong>
+                <strong>📌 Trạng thái:</strong>
 
                 @if($booking->status === 'pending')
                     <span class="badge bg-warning">⏳ Chờ xác nhận</span>
-
-                @elseif($booking->status === 'confirmed' && !$booking->confirmed_at)
-                    <span class="badge bg-success">✅ Đã thanh toán</span>
-
-                @elseif($booking->confirmed_at)
-                    <span class="badge bg-secondary">🎬 Đã vào rạp</span>
+                @elseif($booking->status === 'confirmed')
+                    <span class="badge bg-success">✅ Đã đặt chỗ</span>
                 @endif
             </li>
 
         </ul>
 
-        {{-- ================= QR CODE ================= --}}
-        @if($booking->status === 'confirmed' && !$booking->confirmed_at)
+        {{-- ================= QR CODE CHECK-IN ================= --}}
+        @if(now()->lt($booking->showtime->start_time))
             <div class="text-center mb-4">
                 <h5 class="mb-3">🔲 Mã QR Check-in</h5>
 
@@ -81,8 +78,12 @@
                 ) !!}
 
                 <p class="text-muted mt-2">
-                    Xuất trình mã này cho nhân viên khi vào rạp
+                    Xuất trình mã QR này cho nhân viên trước giờ chiếu
                 </p>
+            </div>
+        @else
+            <div class="alert alert-secondary text-center">
+                ⏰ Suất chiếu đã bắt đầu – QR check-in đã đóng
             </div>
         @endif
 
@@ -90,7 +91,7 @@
         <div class="d-flex flex-wrap gap-2">
 
             {{-- USER --}}
-            @if(Auth::id() === $booking->user_id && $booking->status === 'confirmed')
+            @if(Auth::id() === $booking->user_id)
                 <a href="{{ route('bookings.exportPdf', $booking->id) }}"
                    class="btn btn-danger">
                     📄 Xuất vé PDF

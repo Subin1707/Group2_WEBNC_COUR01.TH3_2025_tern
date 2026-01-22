@@ -177,18 +177,39 @@ class BookingController extends Controller
         return back()->with('success', '✅ Vé đã được xác nhận');
     }
 
-    /* ===================== STAFF SCAN QR (CHECK-IN) ===================== */
-    public function scanQr(string $bookingCode)
-    {
-        abort_unless(Auth::user()->role === 'staff', 403);
+/* ===================== STAFF SCAN QR (CHECK-IN) ===================== */
+public function scanQr(string $bookingCode)
+{
+    abort_unless(Auth::user()->role === 'staff', 403);
 
-        $booking = Booking::byBookingCode($bookingCode)
-            ->with(['showtime.movie', 'user'])
-            ->firstOrFail();
+    $booking = Booking::where('booking_code', $bookingCode)
+        ->with(['showtime.movie', 'user'])
+        ->firstOrFail();
 
-        // ✅ chống scan lại
-        $booking->checkIn();
-
-        return view('bookings.staff.scan-result', compact('booking'));
+    /* ❌ SUẤT CHIẾU ĐÃ BẮT ĐẦU */
+    if (now()->gte($booking->showtime->start_time)) {
+        return view('bookings.staff.scan-result', [
+            'status'  => 'closed',
+            'message' => '⏰ Suất chiếu đã bắt đầu – QR check-in đã đóng',
+        ]);
     }
+
+    /* ❌ ĐÃ CHECK-IN TRƯỚC ĐÓ */
+    if ($booking->checked_in_at) {
+        return view('bookings.staff.scan-result', [
+            'status'  => 'used',
+            'message' => '⚠️ Vé này đã được check-in trước đó',
+        ]);
+    }
+
+    /* ✅ CHECK-IN HỢP LỆ */
+    $booking->update([
+        'checked_in_at' => now(),
+    ]);
+
+    return view('bookings.staff.scan-result', [
+        'status'  => 'success',
+        'booking' => $booking,
+    ]);
+}
 }
