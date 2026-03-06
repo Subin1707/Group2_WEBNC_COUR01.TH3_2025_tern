@@ -15,6 +15,11 @@
             <i class="fa fa-credit-card col_red me-1"></i>
             Xác nhận <span class="col_red">Thanh toán</span>
         </h4>
+
+        {{-- ⏳ ĐẾM NGƯỢC GIỮ GHẾ --}}
+        <div class="alert alert-danger py-2 mt-2" id="countdownBox">
+            ⏳ Thời gian giữ ghế: <span id="countdown">60</span> giây
+        </div>
     </div>
 </div>
 
@@ -59,7 +64,7 @@
 </div>
 
 {{-- 🔥 FORM THANH TOÁN --}}
-<form action="{{ route('bookings.store') }}" method="POST">
+<form id="paymentForm" action="{{ route('bookings.store') }}" method="POST">
     @csrf
 
     <input type="hidden" name="showtime_id" value="{{ $showtime->id }}">
@@ -106,5 +111,33 @@
         </button>
     </div>
 </form>
+
+{{-- ================== SCRIPT ĐẾM NGƯỢC ================== --}}
+<script>
+    let timeLeft = 60;
+    const countdownEl = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+        timeLeft--;
+
+        if (countdownEl) {
+            countdownEl.innerText = timeLeft;
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            alert('Hết thời gian giữ ghế! Vui lòng chọn lại.');
+            window.location.href = "{{ route('bookings.create', $showtime->id) }}";
+        }
+    }, 1000);
+
+    // Khi submit form thì dừng timer
+    const form = document.getElementById('paymentForm');
+    if (form) {
+        form.addEventListener('submit', () => {
+            clearInterval(timer);
+        });
+    }
+</script>
 
 @endsection

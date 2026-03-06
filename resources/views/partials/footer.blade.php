@@ -9,7 +9,7 @@
                 </h3>
                 <p class="mt-3">
                     © {{ date('Y') }} Rạp Chiếu Phim Q&H | Developed by 
-                    <strong>Nguyễn Mạnh Quyền</strong> & <strong>Phạm Văn Hoàng</strong> 🎥
+                    <strong>Nguyễn Mạnh Quyền</strong> & <strong>Nguyễn Huy Hiệp</strong> 🎥
                 </p>
                 <p class="mb-1"><i class="fa fa-map-marker text-danger me-2"></i>Đại học Phenikaa, Yên Nghĩa, Hà Đông</p>
                 <p class="mb-1"><i class="fa fa-envelope text-danger me-2"></i>23010245@st.phenikaa-uni.edu.vn</p>

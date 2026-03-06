@@ -64,7 +64,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Các thành viên trong nhóm
 - **Nguyễn Mạnh Quyền-23010198**:Phát triển phần mềm
-- **Phạm Văn Hoàng-23010245**:Phát triển phần mềm
+- **Nguyễn Huy Hiệp-23010178**:Phát triển phần mềm
 
 ## I. Giới thiệu Project
 
